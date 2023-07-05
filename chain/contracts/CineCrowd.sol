@@ -23,14 +23,15 @@ contract CineCrowd{
     uint256 amountNeeded;
     uint256 minAmount; 
     address owner;
-    uint256 shareAmount;
-    bool withdrawn; //amount of eth to be divided by share holders once amount is reached
+    uint256 shareAmount;  //amount of eth to be divided by share holders once amount is reached
+    bool withdrawn; 
     AggregatorV3Interface internal priceFeed;
     Token liquidityProvider;
 
 
     event Donated(address indexed donater, uint256 indexed amount);
     event SeedAmountWithdrawn(address indexed withdrawer, uint indexed amount, uint indexed time);
+    event ExternalTransaction(address sender, uint amount);
 
     mapping(address=>uint256) donaters;
     address[] shareholders;
@@ -85,11 +86,12 @@ contract CineCrowd{
     function equatePrice(uint ethAmount) internal view returns(uint256 ethAmountInUsd){
         uint usdEthPrice = getLatestPrice();
         ethAmountInUsd = (usdEthPrice * ethAmount) / 1e18;
-        console.log(ethAmountInUsd/1e18);
+        console.log("USD amount of eth donated == ",ethAmountInUsd/1e18);
     }
 
     /// @notice requires that the remainder is not less than minimum account
     function donate()payable external {
+        if(withdrawn){revert SeedValueAlreadyWithdrawn();}
         if(equatePrice(msg.value) < minAmount){
             revert notenoughAmount();
         }
@@ -106,6 +108,7 @@ contract CineCrowd{
     function getRemainderBalance() public view returns(uint remainder){
         uint amount = equatePrice(address(this).balance);
         remainder = amountNeeded - amount;
+        console.log('BALANCE amount in USD', amount);
     }
 
      /**
@@ -124,8 +127,23 @@ contract CineCrowd{
         share = liquidityProvider.balanceOf(_account);
     }
 
-/// @dev This function returns the donations to there original wallets, if deadline elapses
+    /** 
+    * @dev This function returns the donations to there original wallets, if deadline elapses or funding fails
+    * @notice we can subtract the gas fees from donater by doing amountDue - tx.gasprice
+    * */
     function revertDonations()public onlyOwner {
+       address[] memory holders = shareholders;
+        for(uint i =0; i < holders.length; i++){
+            uint amountDue = donaters[holders[i]] - tx.gasprice;
+            (bool sent, ) = holders[i].call{value:amountDue}("");
+            if(!sent){
+                revert distributionFailed();
+            }
+        }
+    }
+
+    /// @dev this is a test function, will be removed during production
+    function redeemShares()public onlyOwner {
         uint balance = address(this).balance;
         uint shareInTokens = returnShare(msg.sender);
         uint shareInEth = (shareInTokens * balance)/100e18;
@@ -159,6 +177,10 @@ contract CineCrowd{
      /// @notice adjusts the minimum amount incase the remainder balance is less than minAmount
     function adjustMinAmount(uint newMinAmount)public onlyOwner {
         minAmount = newMinAmount;  
+    }
+
+    receive()external payable{
+        emit ExternalTransaction(msg.sender,msg.value);
     }
 
 }
