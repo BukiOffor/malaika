@@ -8,4 +8,6 @@ typechain-types
 # Hardhat files
 cache
 artifacts
+yarn.lock
+.DS_store
 
