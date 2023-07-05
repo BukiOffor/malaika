@@ -26,6 +26,11 @@ module.exports = {
       chainId: 5,
       blockConfirmations : 6
     },
+    hardhat: {
+      forking : {
+        url: goerli_rpc,
+      }
+    }
     
   },
   gasReporter : {

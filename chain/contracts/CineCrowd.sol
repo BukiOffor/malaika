@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Token.sol";
+import "hardhat/console.sol";
 
 /// @title cineCrowd
 /// @author Buki
@@ -25,8 +26,8 @@ contract CineCrowd{
     mapping(address=>uint256) donaters;
     mapping(address=>uint256) shares;
 
-    constructor(uint _amountNeeded, uint _minAmount, address _priceFeed){
-        owner = msg.sender;
+    constructor(uint _amountNeeded, uint _minAmount, address _priceFeed,address _owner){
+        owner = _owner;
         amountNeeded = _amountNeeded * 1e18;
         //multiply by 18 decimals to enable easy division since wei and pricefeed has been converted tp 18 decimals
         minAmount = _minAmount * 1e18;
@@ -54,11 +55,12 @@ contract CineCrowd{
     function equatePrice(uint ethAmount) internal view returns(uint256 ethAmountInUsd){
         uint usdEthPrice = getLatestPrice();
         ethAmountInUsd = (usdEthPrice * ethAmount) / 1e18;
+        console.log(ethAmountInUsd/1e18);
     }
 
     /// @notice requires that the remainder is not less than minimum account
     function donate()payable external {
-        if(equatePrice(msg.value) >= minAmount){
+        if(equatePrice(msg.value) < minAmount){
             revert notenoughAmount();
         }
         donaters[msg.sender] = msg.value;
@@ -80,12 +82,30 @@ contract CineCrowd{
 
      /**
      * @notice To get the figures in its original numbers,
-     *  we have to further divide it by 1e18 to get the floating equivalent of what we need. 
+     *  we have to further divide percentageShare it by 1e18 to get the floating equivalent of what we need.
+     * @return percentageShare the percentage of amountNeeded donated by the donater
+     * @dev this function calculates the percentage donated by the donated 
      * */ 
     function getPercentage(uint _amount)public view returns(uint percentageShare) {
         uint amountDonated = equatePrice(_amount);
         percentageShare = (amountDonated*100e18)/amountNeeded;
     }
+
+    function returnShare(address _account)public view returns(uint share) {
+        share = liquidityProvider.balanceOf(_account);
+    }
+
+/// @notice The shareInEth is divided by 100e18 because the other variables are in 18 decimals
+    function redeemShare()public {
+        uint balance = address(this).balance;
+        uint shareInTokens = returnShare(msg.sender);
+        uint shareInEth = (shareInTokens * balance)/100e18;
+        (bool success,) = msg.sender.call{value:shareInEth}("");
+        require(success,"Impossible Transfer");
+        console.log(shareInEth);
+
+    }
+
 
 }
 

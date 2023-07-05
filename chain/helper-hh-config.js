@@ -3,12 +3,13 @@ const networkConfig = {
         name: "goerli",
         priceFeed : "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
         minAmount : "100",
-        amountNeeded : "5000000000000" 
+        amountNeeded : "50000" 
     },
     31337: {
         name: "hardhat",
         minAmount : "100",
-        amountNeeded : "5000000000000" 
+        amountNeeded : "50000",
+        priceFeed : "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
     }
 }
 
