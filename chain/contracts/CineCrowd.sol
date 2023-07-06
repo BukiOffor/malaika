@@ -14,10 +14,11 @@ contract CineCrowd{
     
     error notenoughAmount();
     error notOwner();
-    error balanceLessThanMinAmount();
+    //error balanceLessThanMinAmount();
     error distributionFailed();
     error transactionFailed();
     error SeedValueAlreadyWithdrawn();
+    error AmountDonatingGreaterThanAmountNeeded();
     /// @dev do not change the order of the storage or it will break the code
     
     uint256 amountNeeded;
@@ -95,8 +96,8 @@ contract CineCrowd{
         if(equatePrice(msg.value) < minAmount){
             revert notenoughAmount();
         }
-        if(getRemainderBalance() < minAmount){
-            revert balanceLessThanMinAmount();
+        if(getRemainderBalance(msg.value) < 0){
+            revert AmountDonatingGreaterThanAmountNeeded();
         }
         donaters[msg.sender] = msg.value;
         shareholders.push(msg.sender);
@@ -104,7 +105,20 @@ contract CineCrowd{
         emit Donated(msg.sender,msg.value);
     }
 
+    /**
+     * @dev this function simulates the transaction and makes sure that any amount donated,
+     * does not make the contract balance to be greater than the needed amount 
+     * @param amountToDonate this is the msg.value of the calldata
+     * @return remainder :amount needed for the funded amount to be complete
+     */
+    function getRemainderBalance(uint amountToDonate) internal view returns(int remainder){
+        int amount = int(equatePrice(address(this).balance+amountToDonate));
+        remainder = int(amountNeeded) - amount;
+        console.log('BALANCE amount in USD', uint(amount));
+    }
+    
     /// @return remainder :amount needed for the funded amount to be complete 
+    /// @notice this function is for public use
     function getRemainderBalance() public view returns(uint remainder){
         uint amount = equatePrice(address(this).balance);
         remainder = amountNeeded - amount;
