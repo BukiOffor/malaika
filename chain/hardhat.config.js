@@ -29,7 +29,10 @@ module.exports = {
     hardhat: {
       forking : {
         url: goerli_rpc,
-      }
+      },
+      gasLimit: 3e10, // whatever you want here
+      allowUnlimitedContractSize: true
+
     }
     
   },

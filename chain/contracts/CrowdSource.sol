@@ -4,13 +4,13 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Token.sol";
 import "hardhat/console.sol";
 
-/// @title cineCrowd
+/// @title CrowdSource
 /// @author @BukiOffor
 /// @notice To guard against the fluctuations of a crypto assest, this contract will work best with a stable coin
 /// @notice This contract has not been audited 
 /// @dev All function calls are currently implemented without side effects
 
-contract CineCrowd{
+contract CrowdSource{
     
     error notenoughAmount();
     error AmountNeededNotRaised();
@@ -193,7 +193,8 @@ contract CineCrowd{
     }
 
     /// @dev this function distributes the equivalent Share amount in eth to all the shareHolders
-    function distributeReturns()external{
+    function distributeReturns()public{
+        if(!withdrawn){revert AmountNeededNotRaised();}
         address[] memory holders = shareholders;
         for(uint i =0; i < holders.length; i++){
             uint amountDue = _redeemReturns(holders[i]);
@@ -203,12 +204,24 @@ contract CineCrowd{
         }
     }
 
+    /**
+     * @notice This function transfers ones shares(tokens) to another person
+     * @param receipient address of the share receipient
+     * @param amount of share to transer 
+     */
+
+    function transferShare(address receipient, uint amount)external returns(bool) {
+        bool success = liquidityProvider.transfer(receipient,amount);
+        return success;
+    }
+
      /// @notice adjusts the minimum amount incase the remainder balance is less than minAmount
     function adjustMinAmount(uint newMinAmount)public onlyOwner {
         minAmount = newMinAmount;  
     }
     /// @notice receives ether
     receive()external payable{
+        distributeReturns();
         emit ExternalTransaction(msg.sender,msg.value);
     }
 
@@ -218,6 +231,11 @@ contract CineCrowd{
         assembly{
             sstore(0x02,_newOwner)
         }
+    }
+
+    /// @return tokenAddress : the address of the liquidity provider Tokens
+    function getTokenAddress()external view returns (address tokenAddress){
+        tokenAddress = address(liquidityProvider);
     }
 
 }
