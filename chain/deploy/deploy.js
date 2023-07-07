@@ -13,13 +13,18 @@ module.exports.default = async({deployments,getNamedAccounts})=>{
     const owner = deployer;
 
     log('***********Deploying Contract************')
-    const cinecrowd = await deploy("CineCrowd",{
+    const factory = await deploy("Factory",{
         from: deployer,
-        args: [initialSupply,minAmount,priceFeed,owner],
+        args: [],
         log: true,
     })
+    // const cinecrowd = await deploy("CrowdSource",{
+    //     from: deployer,
+    //     args: [initialSupply,minAmount,priceFeed,owner],
+    //     log: true,
+    // })
 
-    log(`Contract deployed at ${cinecrowd.address}`)
+    log(`Contract deployed at ${factory.address}`)
  
 
 }
