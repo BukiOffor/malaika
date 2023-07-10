@@ -219,7 +219,7 @@ contract CrowdSource{
     function adjustMinAmount(uint newMinAmount)public onlyOwner {
         minAmount = newMinAmount;  
     }
-    /// @notice receives ether
+    /// @notice receives ether and distributes ROI to the stake holders
     receive()external payable{
         distributeReturns();
         emit ExternalTransaction(msg.sender,msg.value);
