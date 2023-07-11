@@ -15,7 +15,7 @@ contract Factory{
     event CrowdSourceCreated(address indexed contractAddress, address indexed creator, uint indexed amount);
 
     function CreateCrowdSource(uint _amountNeeded, uint _minAmount, address _priceFeed, address _owner) public
-    returns(address contractAddress, address creator){
+    {
         if(msg.sender != _owner){
             revert OwnerMustEqualSender();
         }
@@ -24,7 +24,9 @@ contract Factory{
         indexToContract[MarketPlace.length] = address(_crowdsource);
         emit CrowdSourceCreated(address(_crowdsource), msg.sender,_amountNeeded);
         console.log("address", address(_crowdsource));
-        return(address(_crowdsource), msg.sender);
+    }
 
+    function getMarketPlace()external view returns(address[] memory marketplace){
+        marketplace = MarketPlace;
     }
 }

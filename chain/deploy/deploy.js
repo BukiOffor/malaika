@@ -24,7 +24,7 @@ module.exports.default = async({deployments,getNamedAccounts})=>{
     //     log: true,
     // })
 
-    log(`Contract deployed at ${factory.address}`)
+    //log(`Contract deployed at ${factory.address}`)
  
 
 }
