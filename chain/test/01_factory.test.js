@@ -7,7 +7,7 @@ developmentChains.includes(network.name) &&
         let deployer
         let Contractfactory, chainId, contract
         beforeEach(async () => {
-            ;[deployer] = await ethers.getSigners()
+            [deployer] = await ethers.getSigners()
             await deployments.fixture()
             Contractfactory = await ethers.getContract("Factory", deployer)
             chainId = network.config.chainId
