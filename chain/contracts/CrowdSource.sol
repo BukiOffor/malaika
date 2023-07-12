@@ -21,8 +21,13 @@ contract CrowdSource{
     error SeedValueAlreadyWithdrawn();
     error AmountDonatingGreaterThanRemainingAmountNeeded();
     error CrowdFundingEnded();
-    /// @dev do not change the order of the storage or it will break the code
+    //EVENTS
+    event Donated(address indexed donater, uint256 indexed amount);
+    event SeedAmountWithdrawn(address indexed withdrawer, uint indexed amount, uint indexed time);
+    event ExternalTransaction(address sender, uint amount);
     
+    /// @dev do not change the order of the storage or it will break the code
+
     uint256 amountNeeded;
     uint256 minAmount; 
     address owner;
@@ -31,13 +36,8 @@ contract CrowdSource{
     AggregatorV3Interface internal priceFeed;
     Token liquidityProvider;
 
-
-    event Donated(address indexed donater, uint256 indexed amount);
-    event SeedAmountWithdrawn(address indexed withdrawer, uint indexed amount, uint indexed time);
-    event ExternalTransaction(address sender, uint amount);
-
-    mapping(address=>uint256) donaters;
-    address[] shareholders;
+    mapping(address=>uint256) public donaters;
+    address[] public shareholders;
 
     constructor(uint _amountNeeded, uint _minAmount, address _priceFeed,address _owner){
         owner = _owner;
@@ -82,7 +82,7 @@ contract CrowdSource{
     /// @dev we are multiplying answer by 1e10 because answer returns in a 8 decimal format, so multiplying by 10 makes it 18
     function getLatestPrice() internal view returns (uint) {
         (,int answer, , ,) = priceFeed.latestRoundData();
-        console.log("latest eth price in 18 decimals == ", uint(answer*1e10));
+        //console.log("latest eth price in 18 decimals == ", uint(answer*1e10));
         return uint(answer * 1e10);
     }
 
@@ -92,7 +92,7 @@ contract CrowdSource{
     function equatePrice(uint ethAmount) internal view returns(uint256 ethAmountInUsd){
         uint usdEthPrice = getLatestPrice();
         ethAmountInUsd = (usdEthPrice * ethAmount) / 1e18;
-        console.log("USD amount of eth donated == ",ethAmountInUsd/1e18);
+        //console.log("USD amount of eth donated == ",ethAmountInUsd/1e18);
     }
 
     /// @notice requires that the remainder is not less than minimum account
@@ -120,7 +120,7 @@ contract CrowdSource{
     function _getRemainderBalance() internal view returns(int remainder){
         int amount = int(equatePrice(address(this).balance));
         remainder = int(amountNeeded) - amount;
-        console.log('Simulated Amount donated in USD', uint(amount));
+        //console.log('Simulated Amount donated in USD', uint(amount));
     }
     
     /// @return remainder :amount needed for the funded amount to be complete 

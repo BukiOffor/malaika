@@ -22,24 +22,24 @@ developmentChains.includes(network.name) &&
             let crowdsourceAddress, provider;
             beforeEach(async()=>{
                 provider = await contract.provider
-                //const hash = ethers.id("CrowdSourceCreated(address,address,uint)")
+                const hash = ethers.id("CrowdSourceCreated(address,address,uint256)")
                 const logs = await provider.getLogs({
                     address: await Contractfactory.getAddress(),
-                    topics: [
-                        "0x1bbdae750438509a344ebf8a0bf269e2dddc83b20244f7b8a9772131f260313c",
-                    ],
+                    topics: [hash],
                     blockHash: await contract.blockHash,
                 })
                 crowdsourceAddress = ethers.stripZerosLeft(logs[0].topics[1])
+            })
+            it("should create a contract that exists on chain", async()=>{    
+                const byteCode = await provider.getCode(crowdsourceAddress);
+                assert.notEqual(byteCode, '0x')
+                expect(crowdsourceAddress).to.be.a.properAddress;
             })
             
             it("should emit a new event", async () => {
                 expect(contract).to.emit(Contractfactory, "CrowdSourceCreated")          
             })
-            it("should create a contract that exists on chain", async()=>{    
-                const byteCode = await provider.getCode(crowdsourceAddress);
-                assert.notEqual(byteCode, '0x')
-            })
+            
             it('creates a mapping of index number to address', async()=>{
                 const key = ethers.zeroPadValue('0x01',32)
                 const position = ethers.zeroPadValue('0x01',32).slice(2)
@@ -48,10 +48,10 @@ developmentChains.includes(network.name) &&
                     Contractfactory.getAddress(),
                     hash
                 )
-                assert.equal(ethers.stripZerosLeft(value), crowdsourceAddress);
-            })        
+                expect(value).to.hexEqual(crowdsourceAddress);
+            })     
         })
-        describe("retrieveMarketPlace", ()=>{
+        describe("RetrieveMarketPlace", ()=>{
             it("should return every contract in the market place", async()=>{
                 for (let i = 0; i<5; i++) {await Contractfactory.CreateCrowdSource(
                     "1000",

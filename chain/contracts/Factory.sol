@@ -23,7 +23,6 @@ contract Factory{
         MarketPlace.push(address(_crowdsource));
         indexToContract[MarketPlace.length] = address(_crowdsource);
         emit CrowdSourceCreated(address(_crowdsource), msg.sender,_amountNeeded);
-        console.log("address", address(_crowdsource));
     }
 
     function getMarketPlace()external view returns(address[] memory marketplace){
