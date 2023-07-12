@@ -10,7 +10,11 @@ developmentChains.includes(network.name) &&
         beforeEach(async () => {
             ;[deployer] = await ethers.getSigners()
             await deployments.fixture()
-            Contractfactory = await ethers.getContract("Factory", deployer)
+            const myContract = await deployments.get("Factory");
+            Contractfactory = await ethers.getContractAt(
+                myContract.abi,
+                myContract.address
+            );
             chainId = network.config.chainId
             contract = await Contractfactory.CreateCrowdSource(
                 "10000",
