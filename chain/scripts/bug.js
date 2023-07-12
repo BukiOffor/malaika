@@ -34,8 +34,7 @@ async function main(){
     })
 
     //console.log(logs)
-    const crowdsource = ethers.stripZerosLeft(logs[0].topics[1])
-    console.log(crowdsource)
+
 
 
 
