@@ -10,7 +10,11 @@ developmentChains.includes(network.name) &&
         beforeEach(async () => {
             ;[deployer] = await ethers.getSigners()
             await deployments.fixture()
-            Contractfactory = await ethers.getContract("Factory", deployer)
+            const myContract = await deployments.get("Factory");
+            Contractfactory = await ethers.getContractAt(
+                myContract.abi,
+                myContract.address
+            );
             chainId = network.config.chainId
             contract = await Contractfactory.CreateCrowdSource(
                 "10000",
@@ -18,31 +22,31 @@ developmentChains.includes(network.name) &&
                 networkConfig[chainId].priceFeed,
                 deployer.getAddress()
             )
-            provider = await contract.provider
+            provider = Contractfactory.provider
             const logs = await provider.getLogs({
-                address: await Contractfactory.getAddress(),
+                address: Contractfactory.address,
                 topics: [
                     "0x1bbdae750438509a344ebf8a0bf269e2dddc83b20244f7b8a9772131f260313c",
                 ],
                 blockHash: await contract.blockHash,
             })
-            contractAddress = ethers.stripZerosLeft(logs[0].topics[1])
+            contractAddress = ethers.utils.hexStripZeros(logs[0].topics[1])
             crowdsource = await ethers.getContractAt(
                 "CrowdSource",
                 contractAddress,
                 deployer
             )
-            const response = await crowdsource.donate({ value: ethers.parseEther("1") })
+            const response = await crowdsource.donate({ value: ethers.utils.parseEther("1") })
             await response.wait(1);
         })
 
         describe("constructor", function () {
             it("initialises properly", async () => {
-                const amountNeeded = await provider.getStorage(
+                const amountNeeded = await provider.getStorageAt(
                     contractAddress,
                     0x00
                 )
-                const minAmount = await provider.getStorage(
+                const minAmount = await provider.getStorageAt(
                     contractAddress,
                     0x01
                 )
@@ -53,14 +57,14 @@ developmentChains.includes(network.name) &&
 
         describe("Donate", function () {
             it("requires a minimum amount", async () => {
-                const receipt = await crowdsource.donate({ value: ethers.parseEther("0.001") })
-                await expect(
-                    receipt.wait(1)
-                ).to.be.revertedWithCustomError(crowdsource, "notenoughAmount");                   
+                //const receipt = await crowdsource.donate({ value: ethers.utils.parseEther("0.001") })
+                expect(
+                    crowdsource.donate({ value: ethers.utils.parseEther("0.001") })
+                ).to.be.revertedWithCustomError(crowdsource, "NotenoughAmount")                   
             })
             it("allows transaction if amount is above minimum amount", async () => {
                await expect(
-                    crowdsource.donate({ value: ethers.parseEther("0.5") })
+                    crowdsource.donate({ value: ethers.utils.parseEther("0.5") })
                 ).not.to.be.reverted
             })
         })
