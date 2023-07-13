@@ -55,8 +55,8 @@ developmentChains.includes(network.name) &&
             it("requires a minimum amount", async () => {
                 const receipt = await crowdsource.donate({ value: ethers.parseEther("0.001") })
                 await expect(
-                     receipt.wait(1)
-                ).to.be.revertedWithCustomError(crowdsource, "notenoughAmount")                   
+                    receipt.wait(1)
+                ).to.be.revertedWithCustomError(crowdsource, "notenoughAmount");                   
             })
             it("allows transaction if amount is above minimum amount", async () => {
                await expect(
