@@ -1,4 +1,4 @@
-const { ethers, deployments, network } = require("hardhat")
+const { ethers, deployments, network,hre } = require("hardhat")
 const { expect, assert, should } = require("chai")
 const { developmentChains, networkConfig } = require("../helper-hh-config")
 
@@ -26,14 +26,14 @@ developmentChains.includes(network.name) &&
         describe("CreateCrowdSource", function () {
             let crowdsourceAddress, provider;
             beforeEach(async()=>{
-                provider = await contract.provider
-                const hash = ethers.id("CrowdSourceCreated(address,address,uint256)")
+                provider = await Contractfactory.provider;
+                const hash = ethers.utils.id("CrowdSourceCreated(address,address,uint256)")
                 const logs = await provider.getLogs({
-                    address: await Contractfactory.getAddress(),
+                    address: await Contractfactory.address,
                     topics: [hash],
                     blockHash: await contract.blockHash,
                 })
-                crowdsourceAddress = ethers.stripZerosLeft(logs[0].topics[1])
+                crowdsourceAddress = ethers.utils.hexStripZeros(logs[0].topics[1])
             })
             it("should create a contract that exists on chain", async()=>{    
                 const byteCode = await provider.getCode(crowdsourceAddress);
@@ -46,11 +46,11 @@ developmentChains.includes(network.name) &&
             })
             
             it('creates a mapping of index number to address', async()=>{
-                const key = ethers.zeroPadValue('0x01',32)
-                const position = ethers.zeroPadValue('0x01',32).slice(2)
-                const hash = ethers.keccak256(key + position)
-                const value = await provider.getStorage(
-                    Contractfactory.getAddress(),
+                const key = ethers.utils.hexZeroPad('0x01',32)
+                const position = ethers.utils.hexZeroPad('0x01',32).slice(2)
+                const hash = ethers.utils.keccak256(key + position)
+                const value = await provider.getStorageAt(
+                    Contractfactory.address,
                     hash
                 )
                 expect(value).to.hexEqual(crowdsourceAddress);

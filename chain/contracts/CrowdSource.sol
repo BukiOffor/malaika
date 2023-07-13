@@ -4,6 +4,17 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Token.sol";
 import "hardhat/console.sol";
 
+
+error NotenoughAmount();
+error AmountNeededNotRaised();
+error NotOwner();
+//error balanceLessThanMinAmount();
+error DistributionFailed();
+error TransactionFailed();
+error SeedValueAlreadyWithdrawn();
+error AmountDonatingGreaterThanRemainingAmountNeeded();
+error CrowdFundingEnded();
+
 /// @title CrowdSource
 /// @author @BukiOffor
 /// @notice To guard against the fluctuations of a crypto assest, this contract will work best with a stable coin
@@ -11,20 +22,6 @@ import "hardhat/console.sol";
 /// @dev All function calls are currently implemented without side effects
 
 contract CrowdSource{
-    
-    error notenoughAmount();
-    error AmountNeededNotRaised();
-    error notOwner();
-    //error balanceLessThanMinAmount();
-    error distributionFailed();
-    error transactionFailed();
-    error SeedValueAlreadyWithdrawn();
-    error AmountDonatingGreaterThanRemainingAmountNeeded();
-    error CrowdFundingEnded();
-    //EVENTS
-    event Donated(address indexed donater, uint256 indexed amount);
-    event SeedAmountWithdrawn(address indexed withdrawer, uint indexed amount, uint indexed time);
-    event ExternalTransaction(address sender, uint amount);
     
     /// @dev do not change the order of the storage or it will break the code
 
@@ -39,6 +36,11 @@ contract CrowdSource{
     mapping(address=>uint256) public donaters;
     address[] public shareholders;
 
+    //EVENTS
+    event Donated(address indexed donater, uint256 indexed amount);
+    event SeedAmountWithdrawn(address indexed withdrawer, uint indexed amount, uint indexed time);
+    event ExternalTransaction(address sender, uint amount);
+
     constructor(uint _amountNeeded, uint _minAmount, address _priceFeed,address _owner){
         owner = _owner;
         amountNeeded = _amountNeeded * 1e18;
@@ -51,7 +53,7 @@ contract CrowdSource{
 
     modifier onlyOwner {
         if(msg.sender != owner){
-            revert notOwner();
+            revert NotOwner();
         }
         _;
     }
@@ -70,7 +72,7 @@ contract CrowdSource{
             }
         (bool sent,) = owner.call{value:address(this).balance}("");
         if(!sent){
-            revert transactionFailed();
+            revert TransactionFailed();
             }
         withdrawn = true;
         emit SeedAmountWithdrawn(msg.sender,address(this).balance,block.timestamp);
@@ -99,7 +101,7 @@ contract CrowdSource{
     function donate()payable external {
         if(withdrawn){revert CrowdFundingEnded();}
         if(equatePrice(msg.value) < minAmount){
-            revert notenoughAmount();
+            revert NotenoughAmount();
         }
         if(_getRemainderBalance() < 0){
             revert AmountDonatingGreaterThanRemainingAmountNeeded();
@@ -165,7 +167,7 @@ contract CrowdSource{
             uint amountDue = donaters[holders[i]] - tx.gasprice;
             (bool sent, ) = holders[i].call{value:amountDue}("");
             if(!sent){
-                revert distributionFailed();
+                revert DistributionFailed();
             }
         }
         selfdestruct(payable(address(this)));
@@ -186,7 +188,7 @@ contract CrowdSource{
     function _redeemReturns(address _shareholder)internal view returns(uint shareInEth){
         uint balance = address(this).balance;
         if(balance < shareAmount){
-            revert notenoughAmount();
+            revert NotenoughAmount();
         }
         uint shareInTokens = returnShare(_shareholder);
         shareInEth = (shareInTokens * shareAmount)/100e18;
@@ -199,7 +201,7 @@ contract CrowdSource{
         for(uint i =0; i < holders.length; i++){
             uint amountDue = _redeemReturns(holders[i]);
             (bool sent, ) = holders[i].call{value:amountDue}("");
-            if(!sent){revert distributionFailed();}
+            if(!sent){revert DistributionFailed();}
             console.log("sending ",amountDue," to",holders[i]);
         }
     }
