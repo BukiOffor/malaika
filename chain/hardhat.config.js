@@ -66,7 +66,7 @@ module.exports = {
         deployer: {
             default: 0,
         },
-        seller: {
+        signer: {
             default: 1,
         },
         buyer: {

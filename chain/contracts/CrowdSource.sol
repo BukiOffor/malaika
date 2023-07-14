@@ -28,7 +28,7 @@ contract CrowdSource{
     uint256 amountNeeded;
     uint256 minAmount; 
     address owner;
-    uint256 shareAmount;  //amount of eth to be divided by share holders once amount is reached
+    uint256 shareAmount;  //minimum amount of eth required to be in the contract before ROI is shared
     bool withdrawn; 
     AggregatorV3Interface internal priceFeed;
     Token liquidityProvider;
@@ -40,6 +40,7 @@ contract CrowdSource{
     event Donated(address indexed donater, uint256 indexed amount);
     event SeedAmountWithdrawn(address indexed withdrawer, uint indexed amount, uint indexed time);
     event ExternalTransaction(address sender, uint amount);
+    event ReversedTransaction(address indexed sender,uint indexed amount);
 
     constructor(uint _amountNeeded, uint _minAmount, address _priceFeed,address _owner){
         owner = _owner;
@@ -47,7 +48,9 @@ contract CrowdSource{
         //multiply by 18 decimals to enable easy division since wei and pricefeed has been converted tp 18 decimals
         minAmount = (_minAmount * 1e18);
         priceFeed = AggregatorV3Interface(_priceFeed);
-        liquidityProvider = new Token(_amountNeeded*1e18);
+        //?? should i set token amount to 100 since only 100 of the token will be sent to shareholders
+        liquidityProvider = new Token(_amountNeeded*1e18); 
+        // allow liquidity providers to set share amount
         shareAmount = 10e18;
     }
 
@@ -82,7 +85,13 @@ contract CrowdSource{
     /// @notice This function gets the price of USD/ETH
     /// @return answer is the price of 1 eth in dollars
     /// @dev we are multiplying answer by 1e10 because answer returns in a 8 decimal format, so multiplying by 10 makes it 18
-    function getLatestPrice() internal view returns (uint) {
+    function getLatestPrice() external view returns (uint) {
+        (,int answer, , ,) = priceFeed.latestRoundData();
+        //console.log("latest eth price in 18 decimals == ", uint(answer*1e10));
+        return uint(answer * 1e10);
+    }
+
+    function _getLatestPrice() internal view returns (uint) {
         (,int answer, , ,) = priceFeed.latestRoundData();
         //console.log("latest eth price in 18 decimals == ", uint(answer*1e10));
         return uint(answer * 1e10);
@@ -90,9 +99,9 @@ contract CrowdSource{
 
     /// @dev this function converts eth to its equivalent amount in dollars   
     /// @param ethAmount as the msg.value
-    /// @return ethAmountInUsd : the equivalent amount of the msg.value in dollars with 18 decimals
+    /// @return ethAmountInUsd : the equivalent amount of the msg.value(ETH) in dollars with 18 decimals
     function equatePrice(uint ethAmount) internal view returns(uint256 ethAmountInUsd){
-        uint usdEthPrice = getLatestPrice();
+        uint usdEthPrice = _getLatestPrice();
         ethAmountInUsd = (usdEthPrice * ethAmount) / 1e18;
         //console.log("USD amount of eth donated == ",ethAmountInUsd/1e18);
     }
@@ -130,13 +139,13 @@ contract CrowdSource{
     function getRemainderBalance() public view returns(uint remainder){
         uint amount = equatePrice(address(this).balance);
         remainder = amountNeeded - amount;
-        console.log('Amount donated in USD', amount/1e18);
-        console.log('Balance remaining in USD', remainder/1e18);
+        //console.log('Amount donated in USD', amount/1e18);
+        //console.log('Balance remaining in USD', remainder/1e18);
     }
 
     function getBalanceInEth()public view returns(uint balance){
         uint amount = getRemainderBalance();
-        uint price = getLatestPrice();
+        uint price = _getLatestPrice();
         balance = (amount*1e18)/price;
     }
 
@@ -184,22 +193,25 @@ contract CrowdSource{
     // }
 
     /// @dev this function redeems the amount each share holder is due, once the balance > shareAmount
+    /// @param _shareholder this is the address of every sgareholder in the contract
+    /// @param balance this is the balance of the contract at the time of share
     /// @notice The shareInEth is divided by 100e18 because the other variables are in 18 decimals  
-    function _redeemReturns(address _shareholder)internal view returns(uint shareInEth){
-        uint balance = address(this).balance;
+    function _redeemReturns(address _shareholder, uint256 balance)internal view returns(uint shareInEth){
+        //uint balance = address(this).balance;
         if(balance < shareAmount){
             revert NotenoughAmount();
         }
         uint shareInTokens = returnShare(_shareholder);
-        shareInEth = (shareInTokens * shareAmount)/100e18;
+        shareInEth = (shareInTokens * balance)/100e18;
     }
 
     /// @dev this function distributes the equivalent Share amount in eth to all the shareHolders
     function distributeReturns()public{
         if(!withdrawn){revert AmountNeededNotRaised();}
+        uint balance = address(this).balance;
         address[] memory holders = shareholders;
         for(uint i =0; i < holders.length; i++){
-            uint amountDue = _redeemReturns(holders[i]);
+            uint amountDue = _redeemReturns(holders[i],balance);
             (bool sent, ) = holders[i].call{value:amountDue}("");
             if(!sent){revert DistributionFailed();}
             console.log("sending ",amountDue," to",holders[i]);
@@ -216,6 +228,9 @@ contract CrowdSource{
         bool success = liquidityProvider.transfer(receipient,amount);
         return success;
     }
+    function getLiquidityToken(address shareholder) external view  returns (uint256 liquidityShare) {
+        liquidityShare = liquidityProvider.balanceOf(shareholder);
+    }
 
      /// @notice adjusts the minimum amount incase the remainder balance is less than minAmount
     function adjustMinAmount(uint newMinAmount)public onlyOwner {
@@ -223,8 +238,14 @@ contract CrowdSource{
     }
     /// @notice receives ether and distributes ROI to the stake holders
     receive()external payable{
+        if(!withdrawn){
+            (bool success,) = msg.sender.call{value:(msg.value-tx.gasprice)}("");
+            if(!success){revert TransactionFailed();}
+            emit ReversedTransaction(msg.sender,msg.value);
+        } else {
         distributeReturns();
         emit ExternalTransaction(msg.sender,msg.value);
+        }
     }
 
     /// @param _newOwner address of the new owner of the contract
@@ -234,11 +255,17 @@ contract CrowdSource{
             sstore(0x02,_newOwner)
         }
     }
-
+    /// @param _shareAmount mininum amount required to recieve ROI from the contract
+    function changeShareAmount(uint256 _shareAmount)external onlyOwner {
+        assembly{
+            sstore(0x03,_shareAmount)
+        }
+    }
     /// @return tokenAddress : the address of the liquidity provider Tokens
     function getTokenAddress()external view returns (address tokenAddress){
         tokenAddress = address(liquidityProvider);
     }
+
 
 }
 
