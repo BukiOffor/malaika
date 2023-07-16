@@ -110,6 +110,16 @@ developmentChains.includes(network.name) &&
                     })
                 ).to.emit(crowdsource, "Donated")
             })
+            it("does not add to shareholders if you have donated before", async () => {
+                // Tx0 is the owner that is pushed in the constructor
+                await crowdsource.donate({ value: ethers.utils.parseEther("0.5"), }) // Tx1
+                await crowdsource.donate({ value: ethers.utils.parseEther("0.5"), }) // Tx2
+                await expect(crowdsource.shareholders(2)).to.be.reverted;
+                const minter = await ethers.getSigner(17);
+                await crowdsource.connect(minter).donate({ value: ethers.utils.parseEther("0.5"), }) // Tx3
+                expect(await crowdsource.shareholders(2)).to.hexEqual(minter.address);
+                await expect(crowdsource.shareholders(3)).to.be.reverted;
+            })
         })
         describe("getRemainderBalance", () => {
             it("gets the balance of the contract at all times in USD", async () => {
@@ -318,7 +328,7 @@ developmentChains.includes(network.name) &&
         
         describe("ROI on transferred Tokens", () => {
             it("new shareholders receives ROI", async () => {
-                const balance = await crowdsource.getBalanceInEth()
+                const balance = await crowdsource.getBalanceInEth();
                 await crowdsource.donate({ value: BigInt(balance) })
                 const minter = await ethers.getSigner(12)
                 const signer = await ethers.getSigner(14)
@@ -342,12 +352,47 @@ developmentChains.includes(network.name) &&
         describe("changeHolderAddress", () => {
             it("changes the holders address", async () => {
                 const signer = await ethers.getSigner(11);
-                const contract = await crowdsource.connect(signer)
                 await crowdsource.donate({ value: BigInt(1e18) })
-                const address = await crowdsource.shareholders(1)
                 await crowdsource.changeHolderAddress(signer.address)
-                expect(signer.address).to.hexEqual(await crowdsource.shareholders(1));
-                
+                expect(signer.address).to.hexEqual(await crowdsource.shareholders(1));                
+            })
+            it("sets to address(0) if address is holder upon full share transfer & receives ROI", async()=>{
+                const minter = await ethers.getSigner(12);
+                const signer = await ethers.getSigner(11);
+                await crowdsource.connect(minter).donate({ value: ethers.utils.parseEther("1"), }); //tx 1
+                const contract = await crowdsource.connect(signer);
+                await contract.donate({ value: ethers.utils.parseEther("1"), }); // tx 2
+                await contract.transferFullShare(minter.address)
+                const balance = await crowdsource.getBalanceInEth();
+                const minterBalanceB4ROI = await provider.getBalance(minter.address)
+                await crowdsource.donate({ value: BigInt(balance) });
+                await crowdsource.withdraw();
+                await deployer.sendTransaction({
+                    to: crowdsource.address,
+                    value: ethers.utils.parseEther("500"),
+                    gasLimit: 30000000,
+                })
+                expect(await crowdsource.shareholders(2)).to.equal('0x0000000000000000000000000000000000000000');
+                assert.isBelow(minterBalanceB4ROI, await provider.getBalance(minter.address))
+            })
+            it("does not add to shareholder if address is holder upon part share & receives ROI", async()=>{
+                const minter = await ethers.getSigner(12);
+                const signer = await ethers.getSigner(11);
+                await crowdsource.connect(minter).donate({ value: ethers.utils.parseEther("1"), }); //tx 1
+                const contract = await crowdsource.connect(signer);
+                await contract.donate({ value: ethers.utils.parseEther("1"), }); // tx 2
+                await contract.transferShare(minter.address,BigInt(1e18))
+                const balance = await crowdsource.getBalanceInEth();
+                const minterBalanceB4ROI = await provider.getBalance(minter.address)
+                await crowdsource.donate({ value: BigInt(balance) });
+                await crowdsource.withdraw();
+                await deployer.sendTransaction({
+                    to: crowdsource.address,
+                    value: ethers.utils.parseEther("500"),
+                    gasLimit: 30000000,
+                })
+                expect(await crowdsource.shareholders(2)).to.equal(signer.address);
+                assert.isBelow(minterBalanceB4ROI, await provider.getBalance(minter.address))
             })
         })
 

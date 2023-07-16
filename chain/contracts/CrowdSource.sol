@@ -8,7 +8,6 @@ error NotenoughAmount();
 error AmountNeededNotRaised();
 error NotOwner();
 error NotShareHolder();
-//error balanceLessThanMinAmount();
 error DistributionFailed();
 error TransactionFailed();
 error SeedValueAlreadyWithdrawn();
@@ -59,7 +58,7 @@ contract CrowdSource {
         //multiply by 18 decimals to enable easy division since wei and pricefeed has been converted tp 18 decimals
         minAmount = (_minAmount * 1e18);
         priceFeed = AggregatorV3Interface(_priceFeed);
-        //?? should i set token amount to 100 since only 100 of the token will be sent to shareholders
+        //?? should i set token amount to 100 since only 100 token signifying the % of shares will be sent to shareholders
         liquidityProvider = new Token(_amountNeeded * 1e18);
         // allow liquidity providers to set share amount
         shareAmount = 10e18;
@@ -138,8 +137,10 @@ contract CrowdSource {
             revert AmountDonatingGreaterThanRemainingAmountNeeded();
         }
         donaters[msg.sender] = msg.value;
-        
-        shareholders.push(msg.sender);
+        (bool donated,)= _isHolder(msg.sender);
+        if(!donated){
+            shareholders.push(msg.sender);
+        }
         liquidityProvider.transfer(msg.sender, getPercentage(msg.value));
         emit Donated(msg.sender, msg.value);
     }
@@ -293,10 +294,18 @@ contract CrowdSource {
     /// this function is only used when a full Share Ownership is transfered
     /// @param _owner msg.sender of the call
     /// @param newOwner the new owner
+    /// @dev check if receiver exists in the shareholder array if it does do not add, 
+    //  delete old owner or change address to 0, if you change address to zero, check for zero addresses
+    //  in the distribution function as not to cause a panic error and break the code
     function _changeHolderAddress(address _owner,address newOwner)private{
         (bool success, uint index) = _isHolder(_owner);
         if(!success){revert NotShareHolder();}
-        shareholders[index] = newOwner;
+        (bool holder,) = _isHolder(newOwner);
+        if(!holder){
+            shareholders[index] = newOwner;
+        }else{
+            shareholders[index] = address(0); 
+        }
     }
 
     /// @dev this function distributes the equivalent Share amount in eth to all the shareHolders
@@ -311,13 +320,16 @@ contract CrowdSource {
         uint balance = address(this).balance;
         address[] memory holders = shareholders;
         for (uint i = 1; i < holders.length; i++) {
-            uint amountDue = _redeemReturns(holders[i], balance);
-            console.log("sending ", amountDue, " to", holders[i]);
-
-            (bool sent, ) = holders[i].call{value: amountDue-tx.gasprice}("");
-            if (!sent) {
-                revert DistributionFailed();
+            //check if the holder has sold its share
+            if(holders[i]!= address(0)){
+                uint amountDue = _redeemReturns(holders[i], balance);
+                console.log("sending ", amountDue, " to", holders[i]); //remember to remove
+                (bool sent, ) = holders[i].call{value: amountDue-tx.gasprice}("");
+                if (!sent) {
+                    revert DistributionFailed();
+                }
             }
+            
         }
     }
 
@@ -342,7 +354,6 @@ contract CrowdSource {
      * @param receipient address of the share receipient
      * @param amount of share to transer
      */
-
     function transferShare(
         address receipient,
         uint amount
@@ -350,9 +361,9 @@ contract CrowdSource {
         liquidityProvider.approve(msg.sender,address(this),amount);
         bool success = liquidityProvider.transferFrom(msg.sender,receipient,amount);
         if(!success){revert TransactionFailed();}
-        shareholders.push(receipient);
-        return success;
-        
+        (bool holder, ) = _isHolder(receipient);
+        if(!holder){shareholders.push(receipient);}
+        return success;       
     }
 
     function getLiquidityToken(
