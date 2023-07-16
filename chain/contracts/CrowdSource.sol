@@ -138,6 +138,7 @@ contract CrowdSource {
             revert AmountDonatingGreaterThanRemainingAmountNeeded();
         }
         donaters[msg.sender] = msg.value;
+        
         shareholders.push(msg.sender);
         liquidityProvider.transfer(msg.sender, getPercentage(msg.value));
         emit Donated(msg.sender, msg.value);
@@ -218,7 +219,7 @@ contract CrowdSource {
     // }
 
     /// @dev this function redeems the amount each share holder is due, once the balance > shareAmount
-    /// @param _shareholder this is the address of every sgareholder in the contract
+    /// @param _shareholder this is the address of every shareholder in the contract
     /// @param balance this is the balance of the contract at the time of share
     /// @notice The shareInEth is divided by 100e18 because the other variables are in 18 decimals
     function _redeemReturns(
@@ -244,13 +245,17 @@ contract CrowdSource {
         _owner = shareholders[0];
     }
  
-    /// @param _address the address to be checked if its a shareholder in the contract
+   /// @param _address the address to be checked if its a shareholder in the contract
     /// @return success true or false statement if address is holder or not
     /// @return index index of the holder on the contract shareholder array
+    /** @notice we start from 1 to loop because 0 is a constant, we already know that the 
+    * number 0 index in our smart contract belongs to the address of the initial owner of the contract
+    * if we start our loop from zero, it messes up the algorithim should the owner donate to its contract 
+    */
     function _isHolder(address _address)internal view returns(bool success, uint index){
         address[] memory holders = shareholders;
-        uint256 checker = 0;
-        for(uint i = 0; i < holders.length; i++){
+        uint256 checker = 1;
+        for(uint i = 1; i < holders.length; i++){
             if(_address == holders[i]){
                 return(true, checker);
             }
@@ -262,10 +267,14 @@ contract CrowdSource {
     /// @param _address the address to be checked if its a shareholder in the contract
     /// @return success true or false statement if address is holder or not
     /// @return index index of the holder on the contract shareholder array
+    /** @notice we start from 1 to loop because 0 is a constant, we already know that the 
+    * number 0 index in our smart contract belongs to the address of the initial owner of the contract
+    * if we start our loop from zero, it messes up the algorithim should the owner donate to its contract 
+    */
     function isHolder(address _address)external view returns(bool success, uint index){
         address[] memory holders = shareholders;
-        uint256 checker = 0;
-        for(uint i = 0; i < holders.length; i++){
+        uint256 checker = 1;
+        for(uint i = 1; i < holders.length; i++){
             if(_address == holders[i]){
                 return(true, checker);
             }
@@ -303,11 +312,12 @@ contract CrowdSource {
         address[] memory holders = shareholders;
         for (uint i = 1; i < holders.length; i++) {
             uint amountDue = _redeemReturns(holders[i], balance);
-            (bool sent, ) = holders[i].call{value: amountDue}("");
+            console.log("sending ", amountDue, " to", holders[i]);
+
+            (bool sent, ) = holders[i].call{value: amountDue-tx.gasprice}("");
             if (!sent) {
                 revert DistributionFailed();
             }
-            console.log("sending ", amountDue, " to", holders[i]);
         }
     }
 
