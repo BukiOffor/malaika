@@ -392,10 +392,48 @@ developmentChains.includes(network.name) &&
                     gasLimit: 30000000,
                 })
                 expect(await crowdsource.shareholders(2)).to.equal(signer.address);
+                expect(await crowdsource.shareholders(3)).to.be.reverted;
                 assert.isBelow(minterBalanceB4ROI, await provider.getBalance(minter.address))
             })
         })
-
+        describe("adjustMinAmount", () => {
+            it("can only be called by admin", async()=> {
+                const attacker = await ethers.getSigner(19);
+                const _amount = 150
+                await expect(
+                    crowdsource
+                        .connect(attacker)
+                        .adjustMinAmount(_amount)
+                ).to.be.revertedWithCustomError(crowdsource, "NotOwner")
+                await expect(crowdsource.adjustMinAmount(_amount)).to.not.be.reverted;
+                expect(await crowdsource.minAmount()).to.equal(_amount);
+            })
+        })
+        describe("changeOwner", () => {
+            it("can only be called by admin", async()=> {
+                const attacker = await ethers.getSigner(19);
+                const signer = await ethers.getSigner(18)
+                await expect(
+                    crowdsource
+                        .connect(attacker)
+                        .changeOwner(signer.address)
+                ).to.be.revertedWithCustomError(crowdsource, "NotOwner")
+                await expect(crowdsource.changeOwner(signer.address)).to.not.be.reverted;
+                expect(await crowdsource.owner()).to.equal(signer.address);
+            })
+        })
+        describe("changeShareAmount", () => {
+            it("can only be called by admin", async()=> {
+                const attacker = await ethers.getSigner(19);
+                const _amount = BigInt(20e18)
+                await expect(
+                    crowdsource
+                        .connect(attacker)
+                        .changeShareAmount(_amount)
+                ).to.be.revertedWithCustomError(crowdsource, "NotOwner")
+                await expect(crowdsource.changeShareAmount(_amount)).to.not.be.reverted;
+                expect(await crowdsource.shareAmount()).to.equal(_amount);
+            })
+        })
         
-
     })

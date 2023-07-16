@@ -316,14 +316,14 @@ contract CrowdSource {
         (uint256 Owneramountdue, address _owner) = ownerRedeem();
         (bool success,) = _owner.call{value:Owneramountdue-tx.gasprice}("");
         if (!success) { revert DistributionFailed();}
-        console.log("sending ", Owneramountdue-tx.gasprice, " to", _owner);
+        //console.log("sending ", Owneramountdue-tx.gasprice, " to", _owner);
         uint balance = address(this).balance;
         address[] memory holders = shareholders;
         for (uint i = 1; i < holders.length; i++) {
             //check if the holder has sold its share
             if(holders[i]!= address(0)){
                 uint amountDue = _redeemReturns(holders[i], balance);
-                console.log("sending ", amountDue, " to", holders[i]); //remember to remove
+                //console.log("sending ", amountDue, " to", holders[i]); //remember to remove
                 (bool sent, ) = holders[i].call{value: amountDue-tx.gasprice}("");
                 if (!sent) {
                     revert DistributionFailed();
