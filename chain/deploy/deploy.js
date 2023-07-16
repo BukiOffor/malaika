@@ -20,11 +20,11 @@ module.exports.default = async({deployments,getNamedAccounts})=>{
     })
     // const cinecrowd = await deploy("CrowdSource",{
     //     from: deployer,
-    //     args: [initialSupply,minAmount,priceFeed,owner],
+    //     args: [initialSupply,minAmount,priceFeed,owner,10],
     //     log: true,
     // })
 
-    //log(`Contract deployed at ${factory.address}`)
+    log(`Contract deployed at ${factory.address}`)
  
 
 }

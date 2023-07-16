@@ -20,7 +20,8 @@ developmentChains.includes(network.name) &&
                 "1000",
                 "50",
                 networkConfig[chainId].priceFeed,
-                deployer.getAddress()
+                deployer.getAddress(),
+                10
             )
         })
         describe("CreateCrowdSource", function () {
@@ -62,7 +63,8 @@ developmentChains.includes(network.name) &&
                     "1000",
                     "50",
                     networkConfig[chainId].priceFeed,
-                    deployer.getAddress()
+                    deployer.getAddress(),
+                    10
                 )}
                 const marketplace = await Contractfactory.getMarketPlace();
                 expect(marketplace).to.have.a.lengthOf(6); //we expect 6 addr because 1 address was added in the beforeEach hook

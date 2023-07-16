@@ -21,7 +21,8 @@ developmentChains.includes(network.name) &&
                 amount,
                 "500",
                 networkConfig[chainId].priceFeed,
-                deployer.getAddress()
+                deployer.getAddress(),
+                10
             )
             provider = Contractfactory.provider
             const logs = await provider.getLogs({
@@ -237,6 +238,8 @@ developmentChains.includes(network.name) &&
                 await deployer.sendTransaction({
                     to: crowdsource.address,
                     value: ethers.utils.parseEther("500"),
+                    gasLimit: 30000000,
+
                 })
                 await expect(
                     crowdsource.withdraw()
@@ -267,8 +270,43 @@ developmentChains.includes(network.name) &&
                 })
                 ).to.emit(crowdsource,"ReversedTransaction")             
             })
-            it("distributes amount succesfully", async () => {
+            it("distributes amount succesfully", )
+        })
+        describe("Change Ownership", () => {
+            let seller, buyer, buyerContract
+            beforeEach(async () => {
+                seller = await ethers.getSigner(5);
+                buyer = await ethers.getSigner(6);
+                buyerContract = await crowdsource.connect(buyer)
+                await buyerContract.donate({ value: BigInt(1e18) })
+                await crowdsource.donate({ value: ethers.utils.parseEther("0.8") })
 
             })
+            it('transfers full ownership when called',async () => {
+                const addressb4Sale = await buyerContract.shareholders(1);
+                const Tokens = await buyerContract.getLiquidityToken(buyer.address);
+                const receipt = await buyerContract.transferFullShare(seller.address);
+                await receipt.wait(1)
+                const address = await buyerContract.shareholders(1);
+                expect(addressb4Sale).to.hexEqual(buyer.address);
+                expect(address).to.hexEqual(seller.address);
+                expect(Tokens).to.equal(await buyerContract.getLiquidityToken(seller.address));
+                expect(0).to.equal(await crowdsource.getLiquidityToken(buyer.address));
+
+
+            })
+            it('transfers part ownership when called', async () => {
+                const minter = await ethers.getSigner(10)
+                const Tokens = await crowdsource.getLiquidityToken(deployer.address);
+                await crowdsource.transferShare(minter.address, BigInt(8e10))
+                const address = await crowdsource.shareholders(3);
+                const balance = BigInt(Tokens) - BigInt(8e10);
+                expect(address).to.hexEqual(minter.address);
+                expect(balance).to.equal(await crowdsource.getLiquidityToken(deployer.address))
+                expect(await crowdsource.getLiquidityToken(minter.address)).to.equal(8e10);
+              
+            })
+        
         })
+
     })
