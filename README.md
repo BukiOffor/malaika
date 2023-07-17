@@ -12,19 +12,22 @@ In a conventional context, these ideas frequently fail to materialize due to a l
 
 ## Solution
 
-We propose a decentralised marketplace using blockchain technology, where creators pay a little fee to list a project that needs funding. The project will be subject to a verification process to certify that the human behind the project and the idea is real with certain documents and necessary identification. if the checks are validated, The project will be put on the market place and made availaible for users to buy into the project. While creating a project, the user indicates:
-1. The percentage of profits he/she is willing to take when the project is completed and starts earning.
-2. The buy-in duration, a life span of how long the contract will be valid (this could be few year or forever).
-3. The amount needed to take the project live
-4. How long the implementation will take.
+Taking a creator percentage serves as an incentive for honest creators. Let's consider a scenario where a real estate project is being proposed. The owner of a piece of land with the intention of constructing a 10-storey building can list the project on the marketplace, seeking additional funding to transform it into a 20-storey building. In return for their investment, the owner offers a 50% share in the project's profits. The contract will remain valid for a duration of 30 years.
 
-Taking a creator percentage is an incentive for a honest creator. For example if there is a real estate project and the owner has obtained landed assest and has some amount to bulid a 10 storey building, he can put it to the market place and required additional funding to make it a 2 storey building while he takes 50% of the profit and the contract will be valid for 30 years. Providers can buy into this contract and will be issued tokens according to the percentage of the buy in amount
+Providers interested in participating can buy into this contract and will receive tokens based on the percentage of their investment in relation to the total funding required.
 
->TK =  buy-in * 100 / amountNeeded
+The formula for calculating the tokens for each provider is as follows:
 
-These tokens will be used in calculating a return on your buy-in. These tokens will have value for the validity of the contract and can be traded, transfered, gifted, inherited and sold. For any given contract instance, there can only be 100e18 of the contract token in circulation signifiying the percentage of providers. Whilst the project profit are being shared, every token holder will get its token equivalent in percentage of the profit being shared.
+>TK = (buy-in * 100) / amountNeeded
 
-> ROI = TK * profit / 100
+
+These tokens will play a crucial role in calculating the return of your buy in. These tokens hold inherent value throughout the duration of the contract and can be freely traded, transferred, gifted, inherited, and sold. It's important to note that for any specific contract instance, there will only be a maximum of 100e18 contract tokens in circulation, representing the percentage of providers involved in the project.
+
+As the project generates profits, these profits will be shared among the participants. Each token holder will receive a proportionate share of the profits based on their token holdings. The return on investment (ROI) for each token holder can be calculated using the following formula:
+
+>ROI = (TK * profit) / 100
+
+Also, there will be governance amongst the token holders so as to decide the future of the contract through community voting.
 
 ## Future plans for the project
 
