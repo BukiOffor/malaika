@@ -6,9 +6,9 @@ A Decentralized Crowd Funding System on the blockchain that issues reward tokens
 ## An overview of the problem being addressed
  *An idea (eidos) is the source of a thing, its prototype, the underlying reality of any particular object.* - **Plato**
 
-The futility of an idea is most times born through lack of resources. That goes to say that having an availaible resource is a prerequisite to an idea that comes to life. Be it a real estate project that requires a massive influx of funds, a business idea that might be the next it, a music video that might be a hit or the next brilliant startup. 
+The futility of an idea is often born from  lack of resources. This implies that having available resources is a prerequisite for bringing an idea to fruition. Whether it is a real estate project requiring substantial funding, a groundbreaking business idea, a potentially viral music video, or a brilliant startup, the absence of necessary resources often hinders their realization/actualization. 
 
-In a coventional setting, these ideas most times do not see the light of day because of lack of connections and if they do get pitched to a major financier, they sometimes are dead on arrival because of bias or some personal differences. Also pitching to major fianaciers keeps power and wealth in the hands of a select few who dish out crumbs to the people that do the hardwork.
+In a conventional context, these ideas frequently fail to materialize due to a lack of connections. Even if they are presented to prominent financiers, personal biases or differences may cause them to be dismissed outright. Moreover, relying solely on major financiers perpetuates a system where power and wealth remain concentrated in the hands of a select few, who only offer meager portions to those who put in the hard work.
 
 ## Solution
 
