@@ -23,11 +23,12 @@ error CrowdFundingEnded();
 contract CrowdSource {
     /// @dev do not change the order of the storage or it will break the code
 
-    uint256 public amountNeeded;
+    uint256 public immutable amountNeeded;
     uint256 public minAmount;
     address public owner;
     uint256 public shareAmount; //minimum amount of eth required to be in the contract before ROI is shared
     bool withdrawn;
+    uint256 immutable contractNumber;
     uint8 immutable public percentage;
     AggregatorV3Interface internal priceFeed;
     Token liquidityProvider;
@@ -50,7 +51,8 @@ contract CrowdSource {
         uint _minAmount,
         address _priceFeed,
         address _owner,
-        uint8 _percentage
+        uint8 _percentage,
+        uint256 _contractNumber
     /** uint8 _time */ // how long will the contract be valid after the project is life
     ) {
         owner = _owner;
@@ -60,9 +62,11 @@ contract CrowdSource {
         priceFeed = AggregatorV3Interface(_priceFeed);
         //?? should i set token amount to 100 since only 100 token signifying the % of shares will be sent to shareholders
         liquidityProvider = new Token(_amountNeeded * 1e18);
-        // allow liquidity providers to set share amount
+        // allow liquidity providers to set share amount and percentage
         shareAmount = 10e18;
         percentage = _percentage;
+        //contract indexer
+        contractNumber = _contractNumber;
         shareholders.push(_owner);
     }
 
@@ -399,6 +403,11 @@ contract CrowdSource {
             emit ExternalTransaction(msg.sender, msg.value);
         }
     }
+    /**
+     * this contract allows the creator of a contract to withdraw it's stake 
+     * @param factoryAddress This is the address of the factory
+     */
+    function unstake(address factoryAddress)external{}
 
     /// @param _newOwner address of the new owner of the contract
     /// ideally, this should be the address with the highest number of tokens

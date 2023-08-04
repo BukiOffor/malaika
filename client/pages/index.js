@@ -1,14 +1,16 @@
-import React from "react";
-import Header from "../components/Header";
-import WalletConnect from "../components/WalletConnect";
+import { Web3Button } from '@web3modal/react'
+import Interact from '../components/Interact';
+
 
 export default function Home() {
 
 
   return (
-    <div>
-      <Header />
-      <WalletConnect/>
+    <div className='pt-1'>
+      <div className='flex justify-end'>
+        <Web3Button className="" />
+      </div>
+      <Interact/>
     </div>
   );
 }

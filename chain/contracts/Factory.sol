@@ -5,11 +5,18 @@ import "./CrowdSource.sol";
 //import "@openzeppelin/contracts/utils/Create2.sol";
 import "hardhat/console.sol";
 
+
+// staking 
+// multisig wallet escrow to approval transactions 
+
+
 contract Factory {
     error OwnerMustEqualSender();
 
     address[] MarketPlace;
     mapping(uint => address) indexToContract;
+    mapping(address=>address) ownerToContract;
+    mapping(uint256 => uint8) approveWithdrawal;
 
     event CrowdSourceCreated(
         address indexed contractAddress,
@@ -32,10 +39,12 @@ contract Factory {
             _minAmount,
             _priceFeed,
             _owner,
-            _percentage
+            _percentage,
+            MarketPlace.length
         );
         MarketPlace.push(address(_crowdsource));
         indexToContract[MarketPlace.length] = address(_crowdsource);
+        approveWithdrawal[MarketPlace.length] = 0;
         emit CrowdSourceCreated(
             address(_crowdsource),
             msg.sender,
@@ -51,5 +60,13 @@ contract Factory {
         returns (address[] memory marketplace)
     {
         marketplace = MarketPlace;
+    }
+
+    function allowUnstake(uint256 _contractNumber)external{
+        if(indexToContract[_contractNumber] != msg.sender){revert OwnerMustEqualSender();}
+        //allow creator to withdraw
+        approveWithdrawal[MarketPlace.length] = 1;
+
+
     }
 }
