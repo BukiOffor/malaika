@@ -13,6 +13,7 @@ error TransactionFailed();
 error SeedValueAlreadyWithdrawn();
 error AmountDonatingGreaterThanRemainingAmountNeeded();
 error CrowdFundingEnded();
+error NotApproved();
 
 /// @title CrowdSource
 /// @author @BukiOffor
@@ -27,8 +28,11 @@ contract CrowdSource {
     uint256 public minAmount;
     address public owner;
     uint256 public shareAmount; //minimum amount of eth required to be in the contract before ROI is shared
-    bool withdrawn;
     uint256 immutable contractNumber;
+    address factory;
+    uint64 approveUnstake;
+    uint8 withdrawn;
+    uint8 unstaked;
     uint8 immutable public percentage;
     AggregatorV3Interface internal priceFeed;
     Token liquidityProvider;
@@ -45,6 +49,7 @@ contract CrowdSource {
     );
     event ExternalTransaction(address sender, uint amount);
     event ReversedTransaction(address indexed sender, uint indexed amount);
+    event OwnerChanged(address indexed oldOwner, address indexed newOwner);
 
     constructor(
         uint _amountNeeded,
@@ -52,7 +57,8 @@ contract CrowdSource {
         address _priceFeed,
         address _owner,
         uint8 _percentage,
-        uint256 _contractNumber
+        uint256 _contractNumber,
+        address _factory
     /** uint8 _time */ // how long will the contract be valid after the project is life
     ) {
         owner = _owner;
@@ -67,7 +73,10 @@ contract CrowdSource {
         percentage = _percentage;
         //contract indexer
         contractNumber = _contractNumber;
+        withdrawn = 0;
+        unstaked = 0;
         shareholders.push(_owner);
+        factory = _factory;
     }
 
     modifier onlyOwner() {
@@ -83,7 +92,7 @@ contract CrowdSource {
      * @notice This functions allows the amountNeeded a price difference of 5 dollars
      */
     function withdraw() external onlyOwner {
-        if (withdrawn) {
+        if (withdrawn == 1) {
             revert SeedValueAlreadyWithdrawn();
         }
         uint amountDonatedInUsd = equatePrice(address(this).balance);
@@ -95,7 +104,7 @@ contract CrowdSource {
         if (!sent) {
             revert TransactionFailed();
         }
-        withdrawn = true;
+        withdrawn = 1;
         emit SeedAmountWithdrawn(
             msg.sender,
             address(this).balance,
@@ -131,7 +140,7 @@ contract CrowdSource {
 
     /// @notice requires that the remainder is not less than minimum account
     function donate() external payable {
-        if (withdrawn) {
+        if (withdrawn == 1) {
             revert CrowdFundingEnded();
         }
         if (equatePrice(msg.value) < minAmount) {
@@ -201,7 +210,7 @@ contract CrowdSource {
      * @notice functions destroys the contract after
      * */
     function revertDonations() public onlyOwner {
-        if(withdrawn){revert CrowdFundingEnded();}
+        if(withdrawn == 1){revert CrowdFundingEnded();}
         address[] memory holders = shareholders;
         for (uint i = 1; i < holders.length; i++) {
             uint amountDue = donaters[holders[i]] - tx.gasprice;
@@ -314,7 +323,7 @@ contract CrowdSource {
 
     /// @dev this function distributes the equivalent Share amount in eth to all the shareHolders
     function _distributeReturns() private {
-        if (!withdrawn) {
+        if (withdrawn == 0) {
             revert AmountNeededNotRaised();
         }
         (uint256 Owneramountdue, address _owner) = ownerRedeem();
@@ -390,7 +399,7 @@ contract CrowdSource {
      * the contract.
      * */
     receive() external payable {
-        if (!withdrawn) {
+        if (withdrawn == 0) {
             (bool success, ) = msg.sender.call{
                 value: (msg.value - tx.gasprice)
             }("");
@@ -405,16 +414,19 @@ contract CrowdSource {
     }
     /**
      * this contract allows the creator of a contract to withdraw it's stake 
-     * @param factoryAddress This is the address of the factory
      */
-    function unstake(address factoryAddress)external{}
+    function unstake()external onlyOwner {
+        if((approveUnstake *1e18) < (shareholders.length/4)*1e18 ){revert NotApproved();}
+        if(unstaked == 1){revert TransactionFailed();}
+        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake()"));
+        if(success){unstaked = 1;}
+    }
 
     /// @param _newOwner address of the new owner of the contract
-    /// ideally, this should be the address with the highest number of tokens
     function changeOwner(address _newOwner) external onlyOwner {
-        assembly {
-            sstore(0x02, _newOwner)
-        }
+        owner = _newOwner;
+        (bool success,) = factory.call(abi.encodeWithSignature("changeOwner(uint256)", _newOwner));
+        if(success){emit OwnerChanged(msg.sender, _newOwner);}
     }
 
     /// @param _shareAmount mininum amount required to recieve ROI from the contract
