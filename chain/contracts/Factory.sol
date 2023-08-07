@@ -4,6 +4,9 @@ pragma solidity ^0.8.12;
 import "./CrowdSource.sol";
 //import "@openzeppelin/contracts/utils/Create2.sol";
 import "hardhat/console.sol";
+import "./PriceConverter.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
 
 
 // staking 
@@ -12,6 +15,9 @@ import "hardhat/console.sol";
 
 contract Factory {
     error OwnerMustEqualSender();
+
+    using PriceConverter for uint256;
+
 
     address[] MarketPlace;
     mapping(uint => address) indexToContract; 
@@ -31,10 +37,13 @@ contract Factory {
         address _priceFeed,
         address _owner,
         uint8 _percentage
-    ) public {
+    ) public payable {
         if (msg.sender != _owner) {
             revert OwnerMustEqualSender();
         }
+        uint stake = (_amountNeeded*1e18) /4e18;
+        require(PriceConverter.getConversionRate(msg.value,AggregatorV3Interface(_priceFeed)) >= (stake*1e18), "You need to spend more ETH!");
+        console.log(PriceConverter.getConversionRate(msg.value,AggregatorV3Interface(_priceFeed)));
         CrowdSource _crowdsource = new CrowdSource(
             _amountNeeded,
             _minAmount,

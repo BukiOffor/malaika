@@ -220,6 +220,7 @@ contract CrowdSource {
                 revert DistributionFailed();
             }
         }
+        
         selfdestruct(payable(address(this)));
     }
 
