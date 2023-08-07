@@ -22,7 +22,7 @@ error NotApproved();
 /// @dev All function calls are currently implemented without side effects
 
 contract CrowdSource {
-    /// @dev do not change the order of the storage or it will break the code
+    /// @dev do not change the order of the storage or it will break the code, but you can add to it
 
     uint256 public immutable  amountNeeded;
     uint256 immutable public contractNumber;
@@ -40,6 +40,7 @@ contract CrowdSource {
 
     mapping(address => uint256) public donaters;
     address[] public shareholders;
+    address[]public approvals;
 
     //EVENTS
     event Donated(address indexed donater, uint256 indexed amount);
@@ -220,8 +221,12 @@ contract CrowdSource {
                 revert DistributionFailed();
             }
         }
-        
+       bool success = _unstake(contractNumber);
+       if(success){
         selfdestruct(payable(address(this)));
+       }else{
+        revert TransactionFailed();
+       }
     }
 
     /// @dev this is a test function, will be removed during production
@@ -415,13 +420,25 @@ contract CrowdSource {
         }
     }
     /**
-     * this contract allows the creator of a contract to withdraw it's stake 
+     * this contract allows the creator of a contract to withdraw it's stake
+     * @param index the contract number to be sent to the factory
      */
-    function unstake()external onlyOwner {
+    function unstake(uint index)external onlyOwner {
         if((approveUnstake *1e18) < (shareholders.length/4)*1e18 ){revert NotApproved();}
         if(unstaked == 1){revert TransactionFailed();}
-        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake()"));
+        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake()",index));
         if(success){unstaked = 1;}
+    }
+
+    /**
+     * this contract allows the creator of a contract to withdraw it's stake
+     * @param index the contract number to be sent to the factory
+     * this function can only be called during contract cancellation
+     */
+    function _unstake(uint index)internal onlyOwner returns(bool done) {
+        if(unstaked == 1){revert TransactionFailed();}
+        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake()",index));
+        if(success){return true ;}
     }
 
     /// @param _newOwner address of the new owner of the contract
