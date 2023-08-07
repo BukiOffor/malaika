@@ -15,7 +15,7 @@ contract Factory {
 
     address[] MarketPlace;
     mapping(uint => address) indexToContract; 
-    mapping(address=>address) contractToOwner; //turn this into an array because an owner can have plenty contracts
+    mapping(address=>address) contractToOwner; 
     mapping(uint256 => uint8) approveWithdrawal;
     mapping(address=>uint256) addressToStake;
 
@@ -105,7 +105,6 @@ contract Factory {
      * @param _contract the address of the contract
      * @param _creator the creator of a contract to be checked
      */
-
     function isOwner(address _contract, address _creator)external view returns(bool success){
         if(contractToOwner[_contract] == _creator){
             return true;
