@@ -441,6 +441,25 @@ contract CrowdSource {
         if(success){return true ;}
     }
 
+//check this function
+    function approveClientUnstake()external {
+        address[] memory _approvals = approvals;
+        (bool success,) = _isHolder(msg.sender);
+        if(success){
+        for(uint i = 0; i < _approvals.length; i++){
+            if(msg.sender == _approvals[i]){
+                revert TransactionFailed();           
+                    }                
+                }  
+            approveUnstake +=1;
+            approvals.push(msg.sender); 
+            }else{
+                revert NotShareHolder();
+            }
+        }
+        
+    
+
     /// @param _newOwner address of the new owner of the contract
     function changeOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;
