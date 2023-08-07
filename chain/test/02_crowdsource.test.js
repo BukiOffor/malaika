@@ -46,15 +46,12 @@ developmentChains.includes(network.name) &&
 
         describe("constructor", function () {
             it("initialises properly", async () => {
-                const amountNeeded = await provider.getStorageAt(
+                const amountNeeded = await crowdsource.amountNeeded()
+                const minAmount = await provider.getStorageAt(
                     contractAddress,
                     0x00
                 )
-                const minAmount = await provider.getStorageAt(
-                    contractAddress,
-                    0x01
-                )
-                assert.equal(amountNeeded, 10000e18)
+                assert.equal(parseInt(amountNeeded), 10000e18)
                 assert.equal(minAmount, 500e18)
             })
         })
@@ -262,12 +259,8 @@ developmentChains.includes(network.name) &&
                 const amountNeeded = await crowdsource.getBalanceInEth()
                 await crowdsource.donate({ value: amountNeeded })
                 await crowdsource.withdraw()
-                const valueAfterWithdrawal = await provider.getStorageAt(
-                    crowdsource.address,
-                    0x04
-                )
-                const value = valueAfterWithdrawal.toString().slice(0, 64)
-                expect(valueAfterWithdrawal.toString()).to.equal(value + "01")
+                const valueAfterWithdrawal = await crowdsource.withdrawn()
+                expect(valueAfterWithdrawal.toString()).to.equal("1")
             })
         })
 

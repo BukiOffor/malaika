@@ -24,16 +24,17 @@ error NotApproved();
 contract CrowdSource {
     /// @dev do not change the order of the storage or it will break the code
 
-    uint256 public immutable amountNeeded;
+    uint256 public immutable  amountNeeded;
+    uint256 immutable public contractNumber;
+    address immutable factory;
+    uint8 immutable public percentage;
+
     uint256 public minAmount;
     address public owner;
     uint256 public shareAmount; //minimum amount of eth required to be in the contract before ROI is shared
-    uint256 immutable contractNumber;
-    address factory;
-    uint64 approveUnstake;
-    uint8 withdrawn;
-    uint8 unstaked;
-    uint8 immutable public percentage;
+    uint64 public approveUnstake;
+    uint8 public withdrawn;
+    uint8 public unstaked;
     AggregatorV3Interface internal priceFeed;
     Token liquidityProvider;
 
@@ -432,7 +433,7 @@ contract CrowdSource {
     /// @param _shareAmount mininum amount required to recieve ROI from the contract
     function changeShareAmount(uint256 _shareAmount) external onlyOwner {
         assembly {
-            sstore(0x03, _shareAmount)
+            sstore(0x02, _shareAmount)
         }
     }
 

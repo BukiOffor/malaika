@@ -14,8 +14,8 @@ contract Factory {
     error OwnerMustEqualSender();
 
     address[] MarketPlace;
-    mapping(uint => address) indexToContract;
-    mapping(address=>address) contractToOwner;
+    mapping(uint => address) indexToContract; 
+    mapping(address=>address) contractToOwner; //turn this into an array because an owner can have plenty contracts
     mapping(uint256 => uint8) approveWithdrawal;
     mapping(address=>uint256) addressToStake;
 
@@ -68,6 +68,7 @@ contract Factory {
  * when called the function checks if the stake amount has been withdrawn before,
  * if not, it sets the value to 1 
  * @param _contractNumber the index number of the contract, this value is used to track each contract
+ * @dev msg.sender here must equal the deployed CrowdSource contract instance
  */
     function allowUnstake(uint256 _contractNumber)external{
         if(indexToContract[_contractNumber] != msg.sender){
@@ -99,6 +100,18 @@ contract Factory {
          }
         
     }
+    /**
+     * return the contracts created by an address
+     * @param _contract the address of the contract
+     * @param _creator the creator of a contract to be checked
+     */
+
+    function isOwner(address _contract, address _creator)external view returns(bool success){
+        if(contractToOwner[_contract] == _creator){
+            return true;
+        }
+    }
+    
 
     function changeOwner(uint256 _contractNumber, address newOwner)external{
         if(indexToContract[_contractNumber] != msg.sender){
