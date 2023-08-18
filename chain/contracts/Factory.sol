@@ -30,6 +30,7 @@ contract Factory {
         address indexed creator,
         uint indexed amount
     );
+    event Unstaked(address contractAddress, address owner, uint256 amount);
 
     function CreateCrowdSource(
         uint _amountNeeded,
@@ -99,11 +100,12 @@ contract Factory {
         address contractAddress = indexToContract[_contractIndex];
         if(addressToStake[msg.sender] == 0){revert OwnerMustEqualSender();}
         if(approveWithdrawal[_contractIndex] == 1 && contractToOwner[contractAddress] == msg.sender){
+            approveWithdrawal[_contractIndex] = 99;
             (bool success, ) = msg.sender.call{value:addressToStake[msg.sender]-tx.gasprice}("");
             if(!success){
                 revert TransactionFailed();
                 }else{
-                    approveWithdrawal[_contractIndex] = 99;
+                    emit Unstaked(contractAddress,msg.sender,addressToStake[msg.sender]);
                 }
         
          }
