@@ -18,12 +18,12 @@ contract Factory {
 
     using PriceConverter for uint256;
 
-
+    // make sure an owner can only have 1 running project
     address[] MarketPlace;
     mapping(uint => address) indexToContract; 
-    mapping(address=>address) contractToOwner; 
+    mapping(address => address) contractToOwner; 
     mapping(uint256 => uint8) approveWithdrawal;
-    mapping(address=>uint256) addressToStake;
+    mapping(address => uint256) addressToStake;
 
     event CrowdSourceCreated(
         address indexed contractAddress,
@@ -41,6 +41,9 @@ contract Factory {
     ) public payable {
         if (msg.sender != _owner) {
             revert OwnerMustEqualSender();
+        }
+        if (isCreator(msg.sender)){
+            revert ("creator exists");
         }
         uint stake = (_amountNeeded*1e18) /4e18;
         require(PriceConverter.getConversionRate(msg.value,AggregatorV3Interface(_priceFeed)) >= (stake*1e18), "You need to spend more ETH!");
@@ -128,6 +131,12 @@ contract Factory {
             revert OwnerMustEqualSender();
             }
             contractToOwner[msg.sender] = newOwner;
+    }
+
+    function isCreator(address _creator)public view returns(bool success){
+        if(addressToStake[_creator] > 0){
+            return true;
+        }
     }
         
 }
