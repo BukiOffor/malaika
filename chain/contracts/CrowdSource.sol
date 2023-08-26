@@ -14,6 +14,8 @@ error SeedValueAlreadyWithdrawn();
 error AmountDonatingGreaterThanRemainingAmountNeeded();
 error CrowdFundingEnded();
 error NotApproved();
+error YouHaveBeenUnstaked();
+error UnableToUnstake();
 
 /// @title CrowdSource
 /// @author @BukiOffor
@@ -225,7 +227,7 @@ contract CrowdSource {
        if(success){
         selfdestruct(payable(address(this)));
        }else{
-        revert TransactionFailed();
+        revert UnableToUnstake();
        }
     }
 
@@ -420,7 +422,7 @@ contract CrowdSource {
         }
     }
     /**
-     * this contract allows the creator of a contract to withdraw it's stake
+     * this fuction allows the creator of a contract to withdraw it's stake
      * @param index the contract number to be sent to the factory
      */
     function unstake(uint index)external onlyOwner {
@@ -436,7 +438,7 @@ contract CrowdSource {
      * this function can only be called during contract cancellation
      */
     function _unstake(uint index)internal onlyOwner returns(bool done) {
-        if(unstaked == 1){revert TransactionFailed();}
+        if(unstaked == 1){revert YouHaveBeenUnstaked();}
         (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake()",index));
         if(success){return true ;}
     }
