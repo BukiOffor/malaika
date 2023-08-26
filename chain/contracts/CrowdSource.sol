@@ -473,6 +473,9 @@ contract CrowdSource {
             sstore(0x02, _shareAmount)
         }
     }
+    function changeMinAmount(uint _amount) external onlyOwner {
+        minAmount = _amount;
+    }
 
     /// @return tokenAddress : the address of the liquidity provider Tokens
     function getTokenAddress() external view returns (address tokenAddress) {
