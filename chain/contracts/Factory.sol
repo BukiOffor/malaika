@@ -94,7 +94,7 @@ contract Factory {
             revert SeedValueAlreadyWithdrawn();
         }
         //allow creator to withdraw
-        approveWithdrawal[MarketPlace.length] = 1;
+        approveWithdrawal[_contractNumber] = 1;
     }
 
 
