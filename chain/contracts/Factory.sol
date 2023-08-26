@@ -11,6 +11,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 // staking 
 // multisig wallet escrow to approval transactions 
+// change creators address in contract mapping to address(0) once a creator has unstaked, this will enable a user to create a new project
 
 
 contract Factory {
