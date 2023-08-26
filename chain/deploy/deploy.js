@@ -1,5 +1,5 @@
 const {network, ethers} = require("hardhat");
-const { networkConfig } = require("../helper-hh-config")
+const { networkConfig, developmentChains } = require("../helper-hh-config")
 const {verify} = require("../utils/verify")
 
 
@@ -8,11 +8,11 @@ module.exports.default = async({deployments,getNamedAccounts})=>{
     const {deploy,log} = deployments;
     const {deployer} = await getNamedAccounts();
 
-    chainId = network.config.chainId
-    const initialSupply = networkConfig[chainId].amountNeeded;
-    const minAmount = networkConfig[chainId].minAmount;
-    const priceFeed = networkConfig[chainId].priceFeed;
-    const owner = deployer;
+    // chainId = network.config.chainId
+    // const initialSupply = networkConfig[chainId].amountNeeded;
+    // const minAmount = networkConfig[chainId].minAmount;
+    // const priceFeed = networkConfig[chainId].priceFeed;
+    //const owner = deployer;
 
     log('***********Deploying Contract************')
     const factory = await deploy("Factory",{

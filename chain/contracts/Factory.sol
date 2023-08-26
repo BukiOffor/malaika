@@ -59,7 +59,9 @@ contract Factory {
         );
         MarketPlace.push(address(_crowdsource));
         indexToContract[MarketPlace.length] = address(_crowdsource);
+        addressToStake[msg.sender]= msg.value;
         approveWithdrawal[MarketPlace.length] = 0;
+        contractToOwner[address(_crowdsource)] = msg.sender;
         emit CrowdSourceCreated(
             address(_crowdsource),
             msg.sender,
@@ -138,5 +140,8 @@ contract Factory {
             return true;
         }
     }
+
+    
+    
         
 }

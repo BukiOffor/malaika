@@ -9,7 +9,7 @@ require("dotenv").config();
 
 const goerli_rpc = process.env.goerli_rpc_url
 const goerli_pk = process.env.goerli_pk
-const api_key = process.env.api_key
+const api_key = process.env.etherscan_api_key
 const coinmarketcap = process.env.coinmarketcap
 const sepolia_pk = process.env.sepolia_pk
 const sepolia_rpc = process.env.sepolia_rpc

@@ -478,4 +478,14 @@ contract CrowdSource {
     function getTokenAddress() external view returns (address tokenAddress) {
         tokenAddress = address(liquidityProvider);
     }
+
+    function getAmountNeeded()external view returns(uint amount){
+        amount = amountNeeded/1e18;
+    }
+    function getMinAmount()external view returns(uint _minAmount ){
+        _minAmount = minAmount;
+    }
+    function getShareHolders()external view returns(uint number){
+        number = shareholders.length - 1;
+    }
 }
