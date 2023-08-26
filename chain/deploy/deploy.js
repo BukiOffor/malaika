@@ -1,5 +1,7 @@
 const {network, ethers} = require("hardhat");
-const{networkConfig} = require("../helper-hh-config")
+const { networkConfig } = require("../helper-hh-config")
+const {verify} = require("../utils/verify")
+
 
 module.exports.default = async({deployments,getNamedAccounts})=>{
     let chainId
@@ -25,6 +27,11 @@ module.exports.default = async({deployments,getNamedAccounts})=>{
     // })
 
     log(`Contract deployed at ${factory.address}`)
+    if (!developmentChains.includes(network.name)) {
+        log("verifying.................")
+        await verify(factory.address, [])
+    }
+    log("-------------------------------------------------------")
  
 
 }
