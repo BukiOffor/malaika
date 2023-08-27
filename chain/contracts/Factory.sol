@@ -44,7 +44,7 @@ contract Factory {
         if (msg.sender != _owner) {
             revert OwnerMustEqualSender();
         }
-        if (isCreator(msg.sender)){
+        if (_isCreator(msg.sender)){
             revert ("creator exists");
         }
         uint stake = (_amountNeeded*1e18) /4e18;
@@ -87,7 +87,7 @@ contract Factory {
  * @param _contractNumber the index number of the contract, this value is used to track each contract
  * @dev msg.sender here must equal the deployed CrowdSource contract instance
  */
-    function allowUnstake(uint256 _contractNumber)public{
+    function allowUnstake(uint256 _contractNumber)external returns(bool){
         if(indexToContract[_contractNumber] != msg.sender){
             revert OwnerMustEqualSender();
             }
@@ -96,6 +96,7 @@ contract Factory {
         }
         //allow creator to withdraw
         approveWithdrawal[_contractNumber] = 1;
+        return true;
     }
 
 
@@ -118,6 +119,7 @@ contract Factory {
          }else{
             revert UnstakeNotApproved();
          }
+          
         
     }
     /**
@@ -132,20 +134,24 @@ contract Factory {
     }
     
 
-    function changeOwner(uint256 _contractNumber, address newOwner)external{
+    function changeOwner(uint256 _contractNumber, address newOwner)external returns(bool){
         if(indexToContract[_contractNumber] != msg.sender){
             revert OwnerMustEqualSender();
             }
             contractToOwner[msg.sender] = newOwner;
+            return true;
     }
 
-    function isCreator(address _creator)public view returns(bool success){
+    function isCreator(address _creator)external view returns(bool success){
         if(addressToStake[_creator] > 0){
             return true;
         }
     }
-
-    
+    function _isCreator(address _creator)internal view returns(bool success){
+        if(addressToStake[_creator] > 0){
+            return true;
+        }
+    }
     
         
 }
