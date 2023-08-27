@@ -6,6 +6,8 @@ interface Ifactory {
     
     event CrowdSourceCreated(address indexed contractAddress,address indexed creator,uint indexed amount);
     event Unstaked(address contractAddress, address owner, uint256 amount);
+    event ReversedInternalTransaction(address from, uint amount);
+
 
     function CreateCrowdSource(uint _amountNeeded, uint _minAmount,address _priceFeed,address _owner,uint8 _percentage ) external payable ;
     

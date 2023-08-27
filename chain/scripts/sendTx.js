@@ -27,19 +27,24 @@ async function main(){
     // console.log(response)
 
     //     const crowdsource = await ethers.getContractAt("CrowdSource", "0x336988e0c0f740f9761b2fe3703af2fc1ea09c8e",wallet)
-    //     const response = await crowdsource.donate({value:ethers.utils.parseEther('3.78')})
+    //     const response = await crowdsource.donate({value:ethers.utils.parseEther('5000.10')})
     //    console.log(response)
     
-    // const crowdsource = await ethers.getContractAt("CrowdSource", "0x336988e0c0f740f9761b2fe3703af2fc1ea09c8e",signer)
-    // const response = await crowdsource.changeOwner(deployer.address)
+    // const crowdsource = await ethers.getContractAt("CrowdSource", "0x336988e0c0f740f9761b2fe3703af2fc1ea09c8e",deployer)
+    // const response = await crowdsource.changeOwner(signer.address)
     // console.log(response)
 
     // const factory = await ethers.getContractAt("Factory", "0xd3924Aed3dbE4bdBC12FBc5917bBa7202141FE6F",signer)
-    // const response = await factory.unStake("0")
+    // const response = await factory.isOwner("0x336988e0c0f740f9761b2fe3703af2fc1ea09c8e",deployer.address)
     // console.log(response)
 
-    
+    // const crowdsource = await ethers.getContractAt("CrowdSource", "0x336988e0c0f740f9761b2fe3703af2fc1ea09c8e",wallet)
+    //     const response = await crowdsource.getMinAmount()
+    //    console.log(response)
 
+
+    const code = await provider.getCode("0x336988e0c0f740f9761b2fe3703af2fc1ea09c8e")
+    console.log(code)
 }
 
 

@@ -17,6 +17,9 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 contract Factory {
     error OwnerMustEqualSender();
     error UnstakeNotApproved();
+    error OwnerAlreadyExsists();
+    error OwnerShipWasTransfered();
+    error ReversedTransaction();
 
     using PriceConverter for uint256;
 
@@ -33,6 +36,7 @@ contract Factory {
         uint indexed amount
     );
     event Unstaked(address contractAddress, address owner, uint256 amount);
+    event ReversedInternalTransaction(address from, uint amount);
 
     function CreateCrowdSource(
         uint _amountNeeded,
@@ -45,7 +49,7 @@ contract Factory {
             revert OwnerMustEqualSender();
         }
         if (_isCreator(msg.sender)){
-            revert ("creator exists");
+            revert("creator exists");
         }
         uint stake = (_amountNeeded*1e18) /4e18;
         require(PriceConverter.getConversionRate(msg.value,AggregatorV3Interface(_priceFeed)) >= (stake*1e18), "You need to spend more ETH!");
@@ -56,7 +60,7 @@ contract Factory {
             _priceFeed,
             _owner,
             _percentage,
-            MarketPlace.length,
+            MarketPlace.length + 1,
             address(this)
         );
         MarketPlace.push(address(_crowdsource));
@@ -88,6 +92,9 @@ contract Factory {
  * @dev msg.sender here must equal the deployed CrowdSource contract instance
  */
     function allowUnstake(uint256 _contractNumber)external returns(bool){
+        console.log("sender is ", msg.sender);
+        console.log("contract number is", _contractNumber);
+        console.log("indexToContract Address is", indexToContract[_contractNumber]);
         if(indexToContract[_contractNumber] != msg.sender){
             revert OwnerMustEqualSender();
             }
@@ -106,14 +113,17 @@ contract Factory {
  */
     function unStake( uint256 _contractIndex)external{
         address contractAddress = indexToContract[_contractIndex];
-        if(addressToStake[msg.sender] == 0){revert OwnerMustEqualSender();}
+        uint amount = addressToStake[msg.sender];
+        if(addressToStake[msg.sender]==1){revert OwnerShipWasTransfered();}
+        if(!_isCreator(msg.sender)){revert OwnerMustEqualSender();}
         if(approveWithdrawal[_contractIndex] == 1 && contractToOwner[contractAddress] == msg.sender){
             approveWithdrawal[_contractIndex] = 99;
+            addressToStake[msg.sender] = 0;
             (bool success, ) = msg.sender.call{value:addressToStake[msg.sender]-tx.gasprice}("");
             if(!success){
                 revert TransactionFailed();
                 }else{
-                    emit Unstaked(contractAddress,msg.sender,addressToStake[msg.sender]);
+                    emit Unstaked(contractAddress,msg.sender,amount);
                 }
         
          }else{
@@ -135,10 +145,13 @@ contract Factory {
     
 
     function changeOwner(uint256 _contractNumber, address newOwner)external returns(bool){
+        if(_isCreator(newOwner)){revert OwnerAlreadyExsists();}
         if(indexToContract[_contractNumber] != msg.sender){
             revert OwnerMustEqualSender();
             }
+        
             contractToOwner[msg.sender] = newOwner;
+            addressToStake[newOwner] = 1;
             return true;
     }
 
@@ -150,6 +163,16 @@ contract Factory {
     function _isCreator(address _creator)internal view returns(bool success){
         if(addressToStake[_creator] > 0){
             return true;
+        }
+    }
+    
+    receive() external payable {
+    
+        (bool success, ) = msg.sender.call{value: (msg.value - tx.gasprice)}("");
+        if (!success) {
+            revert TransactionFailed();           
+        }else{
+            emit ReversedInternalTransaction(msg.sender, msg.value);
         }
     }
     

@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Token.sol";
 import "hardhat/console.sol";
+import {Ifactory} from "./Interface/Ifactory.sol";
 
 error NotenoughAmount();
 error AmountNeededNotRaised();
@@ -29,7 +30,6 @@ contract CrowdSource {
 
     uint256 public immutable  amountNeeded;
     uint256 immutable public contractNumber;
-    address immutable factory;
     uint8 immutable public percentage;
 
     uint256 public minAmount;
@@ -39,6 +39,7 @@ contract CrowdSource {
     uint8 public withdrawn;
     uint8 public unstaked;
     AggregatorV3Interface internal priceFeed;
+    Ifactory internal factory;
     Token liquidityProvider;
 
     mapping(address => uint256) public donaters;
@@ -81,7 +82,7 @@ contract CrowdSource {
         withdrawn = 0;
         unstaked = 0;
         shareholders.push(_owner);
-        factory = _factory;
+        factory = Ifactory(_factory);
     }
 
     modifier onlyOwner() {
@@ -430,7 +431,7 @@ contract CrowdSource {
     function unstake(uint256 index)external onlyOwner {
         if((approveUnstake *1e18) < (shareholders.length/4)*1e18 ){revert NotApproved();}
         if(unstaked == 1){revert TransactionFailed();}
-        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake(uint256)",index));
+        bool success = factory.allowUnstake(index);
         if(success){unstaked = 1;}
     }
 
@@ -441,7 +442,7 @@ contract CrowdSource {
      */
     function _unstake(uint256 index)internal onlyOwner returns(bool success) {
         if(unstaked == 1){revert YouHaveBeenUnstaked();}
-        (success,) = factory.call(abi.encodeWithSignature("allowUnstake(uint256)", index));
+        success = factory.allowUnstake(index);
         if(success){
             return true ;
         }else{
@@ -471,7 +472,8 @@ contract CrowdSource {
     /// @param _newOwner address of the new owner of the contract
     function changeOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;
-        (bool success,) = factory.call(abi.encodeWithSignature("changeOwner(uint256,address)", contractNumber,_newOwner));
+        shareholders[0] = _newOwner;
+        bool success = factory.changeOwner(contractNumber,_newOwner);
         if(success){
             emit OwnerChanged(msg.sender, _newOwner);
         }else{
