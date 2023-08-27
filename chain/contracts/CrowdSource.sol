@@ -16,6 +16,7 @@ error CrowdFundingEnded();
 error NotApproved();
 error YouHaveBeenUnstaked();
 error UnableToUnstake();
+error OwnerCouldNotBeChanged();
 
 /// @title CrowdSource
 /// @author @BukiOffor
@@ -179,7 +180,8 @@ contract CrowdSource {
     /// @notice this function is for public use
     function getRemainderBalance() public view returns (uint remainder) {
         uint amount = equatePrice(address(this).balance);
-        remainder = amountNeeded - amount;
+        uint response = amountNeeded - amount;
+        remainder = response/1e18;
         //console.log('Amount donated in USD', amount/1e18);
         //console.log('Balance remaining in USD', remainder/1e18);
     }
@@ -425,10 +427,10 @@ contract CrowdSource {
      * this fuction allows the creator of a contract to withdraw it's stake
      * @param index the contract number to be sent to the factory
      */
-    function unstake(uint index)external onlyOwner {
+    function unstake(uint256 index)external onlyOwner {
         if((approveUnstake *1e18) < (shareholders.length/4)*1e18 ){revert NotApproved();}
         if(unstaked == 1){revert TransactionFailed();}
-        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake()",index));
+        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake(uint256)",index));
         if(success){unstaked = 1;}
     }
 
@@ -437,10 +439,14 @@ contract CrowdSource {
      * @param index the contract number to be sent to the factory
      * this function can only be called during contract cancellation
      */
-    function _unstake(uint index)internal onlyOwner returns(bool done) {
+    function _unstake(uint256 index)internal onlyOwner returns(bool success) {
         if(unstaked == 1){revert YouHaveBeenUnstaked();}
-        (bool success,) = factory.call(abi.encodeWithSignature("allowUnstake()",index));
-        if(success){return true ;}
+        (success,) = factory.call(abi.encodeWithSignature("allowUnstake(uint256)", index));
+        if(success){
+            return true ;
+        }else{
+            revert("Something went wrong");
+        }
     }
 
 //check this function
@@ -465,8 +471,12 @@ contract CrowdSource {
     /// @param _newOwner address of the new owner of the contract
     function changeOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;
-        (bool success,) = factory.call(abi.encodeWithSignature("changeOwner(uint256)", _newOwner));
-        if(success){emit OwnerChanged(msg.sender, _newOwner);}
+        (bool success,) = factory.call(abi.encodeWithSignature("changeOwner(uint256,address)", contractNumber,_newOwner));
+        if(success){
+            emit OwnerChanged(msg.sender, _newOwner);
+        }else{
+            revert OwnerCouldNotBeChanged();
+        }
     }
 
     /// @param _shareAmount mininum amount required to recieve ROI from the contract
@@ -493,4 +503,5 @@ contract CrowdSource {
     function getShareHolders()external view returns(uint number){
         number = shareholders.length - 1;
     }
+    
 }

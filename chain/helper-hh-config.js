@@ -12,9 +12,8 @@ const networkConfig = {
         priceFeed : "0xD4a33860578De61DBAbDc8BFdb98FD742fA7028e",
     }
 }
-
-const frontEndContractsFile = "../client/constants/contractAddresses.json"
-const frontEndAbiFile = "../client/constants/abi.json"
+const frontEndContractsFile = "../"
+const frontEndAbiFile = "/Users/mac/crowda-new/src/constants/"
 const developmentChains = ["hardhat",'localhost']
 
 module.exports = {

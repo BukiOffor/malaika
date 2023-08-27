@@ -16,6 +16,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract Factory {
     error OwnerMustEqualSender();
+    error UnstakeNotApproved();
 
     using PriceConverter for uint256;
 
@@ -86,7 +87,7 @@ contract Factory {
  * @param _contractNumber the index number of the contract, this value is used to track each contract
  * @dev msg.sender here must equal the deployed CrowdSource contract instance
  */
-    function allowUnstake(uint256 _contractNumber)external{
+    function allowUnstake(uint256 _contractNumber)public{
         if(indexToContract[_contractNumber] != msg.sender){
             revert OwnerMustEqualSender();
             }
@@ -114,6 +115,8 @@ contract Factory {
                     emit Unstaked(contractAddress,msg.sender,addressToStake[msg.sender]);
                 }
         
+         }else{
+            revert UnstakeNotApproved();
          }
         
     }
