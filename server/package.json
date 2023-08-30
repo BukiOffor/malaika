@@ -19,6 +19,5 @@
     "orbit-db": "^0.29.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
 }
 }
