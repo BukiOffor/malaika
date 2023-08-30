@@ -490,7 +490,7 @@ const FormPage = () => {
                           as={Input}
                           name='stake'
                           id='stake'
-                          type='number'
+                          type='string'
                           variant='outline'
                           validate={(value: string) => {
                             let error;
