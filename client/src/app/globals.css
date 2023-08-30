@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .nav__link {
+    @apply transition duration-300 hover:bg-slate-500 pl-4 py-6 md:px-4;
+  }
+}
+
+::-webkit-progress-value {
+  background-color: #069974;
+}

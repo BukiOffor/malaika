@@ -182,7 +182,6 @@ app.delete("/del/:address", (req,res) => {
     const db = await orbitdb.open(db2,{overwrite:false})
     const hash = await db.del(address)
     console.log(hash)
-
     await orbitdb.disconnect()  
   } del()
 })
