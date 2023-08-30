@@ -110,7 +110,6 @@ app.get("/projects", (req, res) => {
         const db = await orbitdb.open(db2,{overwrite:true,create:false,type:'keyvalue'});
         await db.load()
         const data = await db.all
-        console.log("value is ", value)
         await orbitdb.disconnect()
         res.send({data:data})
     }getAll()
