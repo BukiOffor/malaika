@@ -9,8 +9,8 @@ import Footer from '@/components/footer/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Crowda | Home',
-  description: 'Crowda is a crowdfunding platform for the people.',
+  title: ' Malaika | Home',
+  description: 'Crowda is a crowdfunding platform for the Malaika.',
 }
 
 export default function RootLayout({

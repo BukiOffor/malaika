@@ -20,7 +20,7 @@ export default function Home() {
     <main>
       <CustomHeading
         className={`text-${textColor as string} bg-${bgColor as string} pt-28`}
-        primaryHeading='Unleash the Power of Your Purpose: Crowdfund with Crowda!'
+        primaryHeading='Unleash the Power of Your Purpose: Crowdfund with Malaika!'
         description='The Blockchain Powered Crowdfunding Platform that Rewards Backers and Fuels Dreams'
         leftButton='Create a project'
         rightButton='Support a project'

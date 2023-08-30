@@ -3,8 +3,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Crowda | Support Project',
-  description: 'Support a project on Crowda',
+  title: 'Malaika | Support Project',
+  description: 'Support a project on Malaika',
 }
 const SupportProject = () => {
   return (
