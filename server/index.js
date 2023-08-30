@@ -2,15 +2,18 @@ import express from 'express';
 import cors from 'cors';
 import OrbitDB from 'orbit-db'
 import { create } from 'ipfs-http-client' 
+import 'dotenv/config';
 
 const app = express()
 app.use(cors())
 app.use(express.json())
 
 
+const uri = process.env.uri;
+
 
 async function getVariables() {
-  const ipfs = create('/ip4/34.123.59.34/tcp/5001')
+  const ipfs = create(uri)
   const orbitdb = await OrbitDB.createInstance(ipfs)
   const collection = "/orbitdb/zdpuAuAH2hiMZ7yDnC8vahmNHqsKusPhtXKfMsmcQsV3vfw2R/projects"
   const db = await orbitdb.docs(collection, { overwrite: false, create: false, })//{indexBy:'name'}
@@ -24,7 +27,7 @@ app.post("/docsAppend/:address", (req,res) => {
     const { address } = req.params;
     console.log(address)
     const { name, title, description, category, howMuch, minimum, percentage, upload, stake, creator } = req.body;
-    const ipfs = create('/ip4/34.123.59.34/tcp/5001')
+    const ipfs = create(uri)
   const orbitdb = await OrbitDB.createInstance(ipfs)
   const collection = "/orbitdb/zdpuAuAH2hiMZ7yDnC8vahmNHqsKusPhtXKfMsmcQsV3vfw2R/projects"
   const db = await orbitdb.docs(collection, { overwrite: false, create: false, })//{indexBy:'name'}
@@ -42,7 +45,7 @@ app.post("/docsAppend/:address", (req,res) => {
 app.get("/docsAll", (req,res) => {
   async function getAll() {
     //const {db,orbitdb} = await getVariables()
-    const ipfs = create('/ip4/34.123.59.34/tcp/5001')
+    const ipfs = create(uri)
     const orbitdb = await OrbitDB.createInstance(ipfs)
     const collection = "/orbitdb/zdpuAuAH2hiMZ7yDnC8vahmNHqsKusPhtXKfMsmcQsV3vfw2R/projects"
     const db = await orbitdb.docs(collection, { overwrite: false, create: false, })//{indexBy:'name'}
@@ -58,7 +61,7 @@ app.get('/docsGet/:address', (req,res)=>{
   async function getMyPackage(){
     const { address } = req.params;
     //const {db,orbitdb} = await getVariables()
-    const ipfs = create('/ip4/34.123.59.34/tcp/5001')
+    const ipfs = create(uri)
   const orbitdb = await OrbitDB.createInstance(ipfs)
   const collection = "/orbitdb/zdpuAuAH2hiMZ7yDnC8vahmNHqsKusPhtXKfMsmcQsV3vfw2R/projects"
   const db = await orbitdb.docs(collection, { overwrite: false, create: false, })//{indexBy:'name'}
@@ -71,7 +74,7 @@ app.get('/docsGet/:address', (req,res)=>{
 
 
 async function get(key) {
-    const ipfs = create('/ip4/34.123.59.34/tcp/5001')
+    const ipfs = create(uri)
     const orbitdb = await OrbitDB.createInstance(ipfs)
     const db2 = '/orbitdb/zdpuB2uo9AHAAz3dMFoKpXuwjUxA4MKnLyeLXvWsaDcF9ggez/test-db'
     const db = await orbitdb.open(db2,{overwrite:false,create:false,type:'keyvalue'});
@@ -83,9 +86,25 @@ async function get(key) {
   return value
   }
  
+
+
+app.delete("/docsDel/:contractAddr", (req, res) => {
+  async function erase() {
+    const { contractAddr } = req.params;
+    const ipfs = create(uri)
+    const orbitdb = await OrbitDB.createInstance(ipfs)
+    const collection = "/orbitdb/zdpuAuAH2hiMZ7yDnC8vahmNHqsKusPhtXKfMsmcQsV3vfw2R/projects"
+    const db = await orbitdb.docs(collection, { overwrite: false, create: false, })//{indexBy:'name'}
+    await db.load()
+    const hash = await db.del(contractAddr)
+    console.log(hash)
+    await orbitdb.disconnect()
+  }erase()
+})
+
 app.get("/projects", (req, res) => {
     async function getAll() {
-        const ipfs = await create('/ip4/34.123.59.34/tcp/5001')
+        const ipfs = await create(uri)
         const orbitdb = await OrbitDB.createInstance(ipfs)
         const db2 = '/orbitdb/zdpuB2uo9AHAAz3dMFoKpXuwjUxA4MKnLyeLXvWsaDcF9ggez/test-db'
         const db = await orbitdb.open(db2,{overwrite:true,create:false,type:'keyvalue'});
@@ -103,7 +122,7 @@ app.post('/update/:address',(req,res)=>{
       console.log(req.body)
       const { address } = req.params;
     console.log(address)
-    const ipfs = await create('/ip4/34.123.59.34/tcp/5001')
+    const ipfs = await create(uri)
     const orbitdb = await OrbitDB.createInstance(ipfs)
     const db2 = '/orbitdb/zdpuB2uo9AHAAz3dMFoKpXuwjUxA4MKnLyeLXvWsaDcF9ggez/test-db'
     const { name, title, description, category, howMuch, minimum, percentage, upload, stake,creator } = req.body;
@@ -131,7 +150,7 @@ app.post('/append/:address',(req,res)=>{
       console.log(req.body)
       const { address } = req.params;
     console.log(address)
-    const ipfs = await create('/ip4/34.123.59.34/tcp/5001')
+    const ipfs = await create(uri)
     const orbitdb = await OrbitDB.createInstance(ipfs)
     const db2 = '/orbitdb/zdpuB2uo9AHAAz3dMFoKpXuwjUxA4MKnLyeLXvWsaDcF9ggez/test-db'
     const { name, title, description, category, howMuch, minimum, percentage, upload, stake,creator } = req.body;
@@ -158,15 +177,16 @@ app.delete("/del/:address", (req,res) => {
   async function del() {
     const { address } = req.params;
     console.log(address)
-    const ipfs = await create('/ip4/34.123.59.34/tcp/5001')
+    const ipfs = await create(uri)
     const orbitdb = await OrbitDB.createInstance(ipfs)
     const db2 = '/orbitdb/zdpuB2uo9AHAAz3dMFoKpXuwjUxA4MKnLyeLXvWsaDcF9ggez/test-db'
     const db = await orbitdb.open(db2,{overwrite:false})
     const hash = await db.del(address)
+    console.log(hash)
+
     await orbitdb.disconnect()  
   } del()
 })
-
 
 const port = 8000
 app.listen(port, ()=>{
