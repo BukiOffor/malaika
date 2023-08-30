@@ -11,5 +11,3 @@ cache
 artifacts
 yarn.lock
 .DS_store
-deployments
-gas_report.txt
