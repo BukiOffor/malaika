@@ -240,7 +240,7 @@ export default function SingleMarketCard() {
                               }}
                             />
                             <InputRightElement>
-                              <span className="mr-4 -ml-10"> ETH </span>
+                              <span className="mr-4 -ml-10"> USD </span>
                               <LuChevronDown color="green.500" />
                             </InputRightElement>
                           </InputGroup>
@@ -267,7 +267,7 @@ export default function SingleMarketCard() {
                   {contractaddr}
                   <Link
                     className="underline transition block font-[500] hover:no-underline duration-300"
-                    href={`https://sepolia.etherscan.io/address/${contractaddr}`}
+                    href={`https:/sepolia.etherscan.io/address/${contractaddr}`}
                   >
                     View on etherscan
                   </Link>

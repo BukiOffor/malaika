@@ -35,7 +35,7 @@ import {
 } from '@wagmi/core';
 import { Formik, Form, Field } from 'formik';
 import { LuChevronDown } from 'react-icons/lu';
-import server from "../../server"
+import server from '../../server';
 
 export default function Dashboard() {
   const { colorMode } = useColorMode();
@@ -55,13 +55,13 @@ export default function Dashboard() {
 
   const { isConnected, address } = getAccount();
   const [AmountRemaining, setAmountRemaining] = useState('');
-  const [Providers, setProviders] = useState("")
-  const [OwnerContract, setOwnerContract] = useState("");
+  const [Providers, setProviders] = useState('');
+  const [OwnerContract, setOwnerContract] = useState('');
   const [Nickname, setNickname] = useState('');
   const [Data, setData] = useState([]);
 
   const localhostAddr = '0xd3924Aed3dbE4bdBC12FBc5917bBa7202141FE6F';
-  const sepoliaAddress = "0xAa08e1fdc5c1b62343088a123173692F70f9930C"
+  const sepoliaAddress = '0xAa08e1fdc5c1b62343088a123173692F70f9930C';
   //@ts-ignore
   //const sliceAddr = `${address.slice(0, 5)}...${address.slice(-4)}`;
 
@@ -82,34 +82,32 @@ export default function Dashboard() {
       });
       console.log(hash);
       if (data.status == 'success') {
-        const values = 
-          {
-            name: Data[0] ,
-            title: Data[1],
-            description: Data[2],
-            category: Data[3],
-            howMuch: Data[4],
-            minimum: Data[5],
-            percentage: Data[6],
-            upload: Data[7],
-            stake: Data[8],
-        }
-        console.log("values is ", values)
-        await server.post(`update/${newOwner}`, values)
-        await server.delete(`del/${address}`)
+        const values = {
+          name: Data[0],
+          title: Data[1],
+          description: Data[2],
+          category: Data[3],
+          howMuch: Data[4],
+          minimum: Data[5],
+          percentage: Data[6],
+          upload: Data[7],
+          stake: Data[8],
+        };
+        console.log('values is ', values);
+        await server.post(`update/${newOwner}`, values);
+        await server.delete(`del/${address}`);
         console.log(data);
-        alert("Transaction was Succesful")
+        alert('Transaction was Succesful');
         return true;
       } else {
-        alert("Transaction failed, please try again")
-
+        alert('Transaction failed, please try again');
       }
     }
   }
 
   async function changeMinAmount(newAmount: string) {
     if (isConnected) {
-      const request = await prepareWriteContract({  
+      const request = await prepareWriteContract({
         //@ts-ignore
         address: OwnerContract,
         abi: malaikaAbi,
@@ -125,11 +123,10 @@ export default function Dashboard() {
       console.log(hash);
       if (data.status == 'success') {
         console.log(data);
-        alert("Transaction was Succesful")
+        alert('Transaction was Succesful');
         return true;
       } else {
-        alert("Transaction failed, please try again")
-
+        alert('Transaction failed, please try again');
       }
     }
   }
@@ -150,11 +147,11 @@ export default function Dashboard() {
       args: [],
     });
     //@ts-ignore
-    const request = response - receipt
+    const request = response - receipt;
     //@ts-ignore
-    setRemainder(receipt)
-    console.log('getter is', request)
-    return request
+    setRemainder(receipt);
+    console.log('getter is', request);
+    return request;
   }
   async function getProvider(contractAddress: string) {
     const request = await readContract({
@@ -205,12 +202,14 @@ export default function Dashboard() {
       }
     }
   }
-  async function getPackage(address:string) {  
-    const {data:{data}} =  await server.get(`package/${address}`)
-    if (data != undefined ) {
-      console.log(data)
+  async function getPackage(address: string) {
+    const {
+      data: { data },
+    } = await server.get(`package/${address}`);
+    if (data != undefined) {
+      console.log(data);
       setData(data);
-      return data
+      return data;
     }
   }
   useEffect(() => {
@@ -219,12 +218,12 @@ export default function Dashboard() {
         const contractAddr = await isCreator();
         console.log(contractAddr);
         //@ts-ignore
-        setOwnerContract(contractAddr)
+        setOwnerContract(contractAddr);
         //@ts-ignore
         const amount = await getAmount(contractAddr);
         console.log('amount is', amount);
         //@ts-ignore
-        setAmountRemaining(`$${(BigInt(amount)).toString()}.00`)
+        setAmountRemaining(`$${BigInt(amount).toString()}.00`);
         //@ts-ignore
         console.log('amount is remaining', AmountRemaining);
         //@ts-ignore
@@ -233,8 +232,6 @@ export default function Dashboard() {
         //@ts-ignore
         setProviders(backers.toString());
         console.log('provider is ', Providers);
-        
-
       }
     }
     updateUI();
@@ -245,11 +242,12 @@ export default function Dashboard() {
       //@ts-ignore
       const nickname = await getPackage(address);
       //setData(nickname)
-      console.log(nickname)
-      setNickname(`Hello ${nickname[0]},`)
+      console.log(nickname);
+      setNickname(`Hello ${nickname[0]},`);
       console.log('nickname is ', Nickname);
-    }updateName()
-  },[address,Nickname,Data])
+    }
+    updateName();
+  }, [address, Nickname, Data]);
 
   return (
     <section>
@@ -269,7 +267,7 @@ export default function Dashboard() {
           initialValues={{
             howMuch: '',
           }}
-          onSubmit={async(values) => await changeOwner(values.howMuch)} //change in database too
+          onSubmit={async (values) => await changeOwner(values.howMuch)} //change in database too
         >
           {({ handleSubmit, errors, touched, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
@@ -303,7 +301,6 @@ export default function Dashboard() {
                 bgColor='black'
                 shadow
                 className='hover:bg-gray-900 hover:font-medium mt-4 ml-[35%]'
-            
               />
             </Form>
           )}
@@ -325,9 +322,9 @@ export default function Dashboard() {
           initialValues={{
             howMuch: '',
           }}
-          onSubmit={async(values) => await changeMinAmount(values.howMuch)}
+          onSubmit={async (values) => await changeMinAmount(values.howMuch)}
         >
-          {({ handleSubmit, errors,values, touched, isSubmitting }) => (
+          {({ handleSubmit, errors, values, touched, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
               <FormControl isInvalid={!!errors.howMuch && touched.howMuch}>
                 <FormLabel htmlFor='howMuch'>New address</FormLabel>
@@ -359,7 +356,6 @@ export default function Dashboard() {
                 bgColor='black'
                 shadow
                 className='hover:bg-gray-900 hover:font-medium mt-4 ml-[35%]'
-
               />
             </Form>
           )}
@@ -390,15 +386,26 @@ export default function Dashboard() {
             </div>
           </div>
           <div className='flex flex-col md:flex-row gap-8'>
-            <DashboardCard bgColor='limegreen.400' icon={HiOutlineCurrencyDollar} iconLabel='Current balance' currencyValue={AmountRemaining} footerText='Available to withdraw' />
-            <DashboardCard bgColor='gray.200' icon={TbUsersGroup} iconLabel='Total backers' currencyValue={Providers} link='view all' />
+            <DashboardCard
+              bgColor='limegreen.400'
+              icon={HiOutlineCurrencyDollar}
+              iconLabel='Current balance'
+              currencyValue={AmountRemaining}
+              footerText='Available to withdraw'
+            />
+            <DashboardCard
+              icon={TbUsersGroup}
+              iconLabel='Total backers'
+              currencyValue={Providers}
+              link='view all'
+            />
           </div>
           <CardAvatar
             contractAddress={OwnerContract}
             title={Data[1]}
             goal={Data[4]}
             providers={Providers}
-            AmountRemaining = {AmountRemaining}
+            AmountRemaining={AmountRemaining}
           />
         </div>
       </Container>

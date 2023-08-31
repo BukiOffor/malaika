@@ -13,7 +13,10 @@ import cardImg from '../../public/cardImg.svg';
 import CustomButton from './CustomButton';
 import { LuExternalLink } from 'react-icons/lu';
 
-export default function CardComponent() {
+export default function CardComponent(
+  { contractaddr, title, description, howMuch, minimum, name }:
+    { contractaddr:string, title: string, description: string, howMuch: string, minimum:string, name:string }
+) {
   return (
     <>
       <Card
@@ -47,22 +50,22 @@ export default function CardComponent() {
                 }}
               >
                 <Stack>
-                  <Heading size='md'>Project name</Heading>
+                  <Heading size='md'>{title}</Heading>
                   <Text fontSize='sm'>
-                    This will be the project description. Short but concise
+                    {description}
                   </Text>
                 </Stack>
                 <Stack>
                   <Heading className='' size='md'>
-                    $2,000
+                    {howMuch}
                   </Heading>
                   <Text className='' fontSize='sm'>
                     $1,500 raised
                   </Text>
                 </Stack>
                 <Stack>
-                  <Heading size='md'>Token reward</Heading>
-                  <Text fontSize='sm'>Holds for 3 months</Text>
+                  <Heading size='md'>Created by </Heading>
+                  <Text fontSize='sm'>{name}</Text>
                 </Stack>
               </Flex>
               {/* 2ND Stack */}
@@ -79,12 +82,12 @@ export default function CardComponent() {
                 <Stack>
                   <Heading size='md'>Minimum Buy-in</Heading>
                   <Text className='' fontSize='sm'>
-                    $100
+                    ${minimum}
                   </Text>
                 </Stack>
                 <Stack>
                   <Heading size='md'>Timeline</Heading>
-                  <Text fontSize='sm'>Ends in 6d 4h 3m 1s</Text>
+                  <Text fontSize='sm'>#to-do</Text>
                 </Stack>
               </Flex>
             </Stack>

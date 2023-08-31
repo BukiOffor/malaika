@@ -99,7 +99,7 @@ const FormPage = () => {
         abi: factoryAbi,
         functionName: 'CreateCrowdSource',
         value: parseEther(stake.toString()),
-        args: [amount, minAmount, localhostFeed, address, percentage],
+        args: [amount, minAmount, sepoliapriceFeed, address, percentage],
       });
       console.log('value is ', amount, minAmount);
       const { hash } = await writeContract(request);
