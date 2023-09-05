@@ -20,6 +20,8 @@ contract Factory {
     error OwnerAlreadyExsists();
     error OwnerShipWasTransfered();
     error ReversedTransaction();
+    error CreatorExists();
+    error InsufficientStakeDeposit();
 
     using PriceConverter for uint256;
 
@@ -49,10 +51,10 @@ contract Factory {
             revert OwnerMustEqualSender();
         }
         if (_isCreator(msg.sender)){
-            revert("creator exists");
+            revert CreatorExists();
         }
         uint stake = (_amountNeeded*1e18) /4e18;
-        require(PriceConverter.getConversionRate(msg.value,AggregatorV3Interface(_priceFeed)) >= (stake*1e18), "You need to spend more ETH!");
+        if(PriceConverter.getConversionRate(msg.value,AggregatorV3Interface(_priceFeed)) < stake*1e18){revert InsufficientStakeDeposit();}
         console.log(PriceConverter.getConversionRate(msg.value,AggregatorV3Interface(_priceFeed)));
         CrowdSource _crowdsource = new CrowdSource(
             _amountNeeded,
@@ -64,9 +66,9 @@ contract Factory {
             address(this)
         );
         MarketPlace.push(address(_crowdsource));
-        indexToContract[MarketPlace.length] = address(_crowdsource);
+        indexToContract[MarketPlace.length ] = address(_crowdsource);
         addressToStake[msg.sender]= msg.value;
-        approveWithdrawal[MarketPlace.length] = 0;
+        approveWithdrawal[MarketPlace.length ] = 0;
         contractToOwner[address(_crowdsource)] = msg.sender;
         emit CrowdSourceCreated(
             address(_crowdsource),
@@ -83,6 +85,7 @@ contract Factory {
         returns (address[] memory marketplace)
     {
         marketplace = MarketPlace;
+        //bytes4 selector = this.getMarketPlace.selector;
     }
 /**
  * This function call only be called by the child contract,
@@ -175,6 +178,20 @@ contract Factory {
             emit ReversedInternalTransaction(msg.sender, msg.value);
         }
     }
-    
+
+    function getContract(uint256 index)external view returns(address contractAddr){
+        contractAddr = indexToContract[index];
+    } 
+
+    function getUnstaked(uint256 index)external view returns(bool success){
+        if(approveWithdrawal[index] == 1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    function getStakeAmount(address creator) external view returns(uint256 stake){
+        stake = addressToStake[creator];
+    }
         
 }

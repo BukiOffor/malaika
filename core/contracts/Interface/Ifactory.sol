@@ -23,4 +23,10 @@ interface Ifactory {
 
     function isCreator(address _creator)external view returns(bool success);
 
+    function getContract(uint256 index)external view returns(address contractAddr);
+
+    function getUnstaked(uint256 index)external view returns(bool success);
+
+    function getStakeAmount(address creator) external view returns(uint256 stake);
+
 }
