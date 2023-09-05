@@ -59,7 +59,7 @@ module.exports = {
                 blockNumber: 9326339,
             },
             gasLimit: 3e10, // whatever you want here
-            //allowUnlimitedContractSize: true
+            allowUnlimitedContractSize: true
         },
         sepolia :{
             url: sepolia_rpc,
