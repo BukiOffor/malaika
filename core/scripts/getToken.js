@@ -47,9 +47,15 @@ async function main(){
     // const code = await provider.getCode("0x336988e0c0f740f9761b2fe3703af2fc1ea09c8e")
     // console.log(code)
 
-    const crowdsource = await ethers.getContractAt("CrowdSource", "0xded8a1e9001b68b6c9e0d20eb3ba6ac288da16f2",sepolia)
-    const response = await crowdsource.getTokenAddress()
-       console.log(response)
+    //const crowdsource = await ethers.getContractAt("CrowdSource", "0xDeD8a1e9001B68b6C9e0d20EB3BA6AC288DA16F2",sepolia)
+    const factory = await ethers.getContractAt("Factory", "0xAa08e1fdc5c1b62343088a123173692F70f9930C",sepolia)
+    const balance = parseInt(await sepolia.getBalance())
+    //const response = await crowdsource.getAmountNeeded()
+    const receipt = await factory.unStake(1)
+    const postBalance =  parseInt(await sepolia.getBalance())
+    console.log("pre balance is ", balance)
+    console.log("post balance is ",postBalance)
+    console.log(receipt)
 }
 
 
