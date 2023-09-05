@@ -18,6 +18,7 @@ error NotApproved();
 error YouHaveBeenUnstaked();
 error UnableToUnstake();
 error OwnerCouldNotBeChanged();
+error FactoryCouldNotBeUnstaked();
 
 /// @title CrowdSource
 /// @author @BukiOffor
@@ -446,7 +447,7 @@ contract CrowdSource {
         if(success){
             return true ;
         }else{
-            revert("Something went wrong");
+            revert FactoryCouldNotBeUnstaked();
         }
     }
 
