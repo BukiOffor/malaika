@@ -121,8 +121,9 @@ contract Factory {
         if(!_isCreator(msg.sender)){revert OwnerMustEqualSender();}
         if(approveWithdrawal[_contractIndex] == 1 && contractToOwner[contractAddress] == msg.sender){
             approveWithdrawal[_contractIndex] = 99;
+            uint amountToSend = addressToStake[msg.sender] - tx.gasprice;
             addressToStake[msg.sender] = 0;
-            (bool success, ) = msg.sender.call{value:addressToStake[msg.sender]-tx.gasprice}("");
+            (bool success, ) = msg.sender.call{value:amountToSend}("");
             if(!success){
                 revert TransactionFailed();
                 }else{

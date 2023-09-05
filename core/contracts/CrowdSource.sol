@@ -506,5 +506,7 @@ contract CrowdSource {
     function getShareHolders()external view returns(uint number){
         number = shareholders.length - 1;
     }
-    
+    function getContractNumber()external view returns(uint index){
+        index = contractNumber;
+    }
 }
