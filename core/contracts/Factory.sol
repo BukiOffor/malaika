@@ -134,7 +134,7 @@ contract Factory {
             revert UnstakeNotApproved();
          }
           
-        
+       
     }
     /**
      * return the contracts created by an address
@@ -152,8 +152,7 @@ contract Factory {
         if(_isCreator(newOwner)){revert OwnerAlreadyExsists();}
         if(indexToContract[_contractNumber] != msg.sender){
             revert OwnerMustEqualSender();
-            }
-        
+            }       
             contractToOwner[msg.sender] = newOwner;
             addressToStake[newOwner] = 1;
             return true;
@@ -170,8 +169,7 @@ contract Factory {
         }
     }
     
-    receive() external payable {
-    
+    receive() external payable {    
         (bool success, ) = msg.sender.call{value: (msg.value - tx.gasprice)}("");
         if (!success) {
             revert TransactionFailed();           
