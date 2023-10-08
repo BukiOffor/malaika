@@ -33,9 +33,10 @@ export default function UserDashboard() {
   const [details, setDetails] = useState([])
   const { isConnected, address } = getAccount();
 
-  async function _isDonater(address: string) {
+  async function _isDonater(contractaddress: string) {
     const details = await readContract({
-      address: sepoliaAddress,
+      //@ts-ignore
+      address: contractaddress,
       abi: malaikaAbi,
       functionName: 'isDonater',
       args: [address],
@@ -129,9 +130,9 @@ export default function UserDashboard() {
                       src={moonImg}
                       alt='The moon Image'
                     />
-                      <Text ml='2'>{ item[0]}</Text>
+                      <Text ml='2'>{item[0]}</Text>
                   </Flex>
-                    <Text className=''>{ item[1]}</Text>
+                    <Text className=''>{item[1]}</Text>
                   <Progress
                     className='rounded-full'
                     value={70}
