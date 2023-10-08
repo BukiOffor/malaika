@@ -83,17 +83,6 @@ const FormPage = () => {
   async function createProject(amount, minAmount, percentage, stake, values) {
     if (isConnected) {
      
-      // const unwatch = publicClient.watchContractEvent({
-      //   address: localhostAddr,
-      //   abi: factoryAbi,
-      //   eventName: 'CrowdSourceCreated',
-      //   args: { creator: address},
-      //   onLogs: logs => console.log('logs is',logs)
-      // })
-
-      
-
-
       const request = await prepareWriteContract({
         address: sepolia,
         abi: factoryAbi,

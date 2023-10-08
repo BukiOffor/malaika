@@ -25,6 +25,8 @@ import {
 import { getAccount, readContract } from '@wagmi/core';
 import { factoryAbi, malaikaAbi } from '@/constants';
 import { useEffect, useState } from 'react';
+import { parseEther } from 'viem';
+
 
 
 const sepoliaAddress = '0xAa08e1fdc5c1b62343088a123173692F70f9930C';
@@ -57,7 +59,7 @@ export default function UserDashboard() {
       //@ts-ignore
       const details = await _isDonater(marketplace[i]);
       //@ts-ignore
-      if (details[0] = true) {
+      if (details[0]) {
         contracts.push([marketplace[i],details[1]]);
       }
     }
@@ -105,7 +107,7 @@ export default function UserDashboard() {
                 Address
               </Heading>
               <Heading as='h4' size='sm' className='md:-ml-[2.5rem]'>
-                Amount staked
+                Amount staked(ETH)
               </Heading>
               <Heading as='h4' size='sm'>
                 Progress
