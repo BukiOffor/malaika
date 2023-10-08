@@ -506,7 +506,17 @@ contract CrowdSource {
     function getShareHolders()external view returns(uint number){
         number = shareholders.length - 1;
     }
+
     function getContractNumber()external view returns(uint index){
         index = contractNumber;
     }
+
+    function isDonater(address user)public view returns(bool,uint256){
+        uint256 amount = donaters[user];
+        if (amount > 0){
+            return(true, amount);
+        } else {
+            return (false, amount);
+        }
+    }    
 }
