@@ -21,12 +21,12 @@ export default function AboutHeading({
       <Heading
         size={{
           base: 'md',
-          md: 'lg',
+          md: 'xl',
         }}
       >
         {title}
       </Heading>
-      <Text>{description}</Text>
+      <Text className={`py-3 ${className}`}>{description}</Text>
     </>
   );
 }

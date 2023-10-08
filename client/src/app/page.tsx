@@ -10,7 +10,7 @@ import Image from 'next/image';
 import heroImg from '../../public/bgImage.svg';
 import Link from 'next/link';
 import { useColorMode } from '@chakra-ui/react';
-import server from '../server';
+import server from '../../src/server';
 import { useState, useEffect } from 'react';
 import { getAccount } from '@wagmi/core';
 
