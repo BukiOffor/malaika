@@ -98,7 +98,7 @@ export default function UserDashboard() {
           }}
           mb='6'
         >
-          Portfolio projects(3)
+          Portfolio projects({details.length})
         </Heading>
         <Card className='shadow-primary'>
           <CardHeader>
@@ -148,7 +148,7 @@ export default function UserDashboard() {
             }
             
 {/* ---------------------------------------------1ST AVATAR CONTAINER------------------------------------------------------ */}
-            <Flex
+            {/* <Flex
               alignItems='center'
               className='w-full py-3 mb-4 overflow-auto border border-black rounded-md bg-slate-900'
             >
@@ -172,13 +172,13 @@ export default function UserDashboard() {
                   colorScheme='green'
                 />
               </Flex>
-            </Flex>
+            </Flex> */}
 
 
 {/* ------------------------------------------------2ND AVATAR CONTAINER------------------------------------------------- */}
 
 
-            <Flex
+            {/* <Flex
               alignItems='center'
               className='w-full py-3 mb-4 overflow-auto border border-black rounded-md bg-slate-900'
             >
@@ -202,11 +202,11 @@ export default function UserDashboard() {
                   colorScheme='green'
                 />
               </Flex>
-            </Flex>
+            </Flex> */}
 
 {/* ------------------------------------------------3RD AVATAR CONTAINER------------------------------------------------- */}
 
-            <Flex
+            {/* <Flex
               alignItems='center'
               className='w-full py-3 mb-4 overflow-auto border border-black rounded-md bg-slate-900'
             >
@@ -230,7 +230,7 @@ export default function UserDashboard() {
                   colorScheme='green'
                 />
               </Flex>
-            </Flex>
+            </Flex> */}
 
 {/* ------------------------------------------------END AVATAR CONTAINER------------------------------------------------- */}            
           </CardBody>

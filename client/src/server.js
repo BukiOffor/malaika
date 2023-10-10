@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const server = axios.create({
-  baseURL:'https://ipfs-server.onrender.com'
+  baseURL:'https://malaika-backend-server.onrender.com/'
 
 });
 
